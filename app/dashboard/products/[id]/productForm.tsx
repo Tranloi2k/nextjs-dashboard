@@ -1,5 +1,4 @@
 "use client";
-import { buyProduct } from "@/app/lib/products";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import { ShoppingBagIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
@@ -11,11 +10,6 @@ export default function ProductForm({ product }: any) {
   );
 
   const [quantity, setQuantity] = useState(1);
-
-  const handleBuyNow = () => {
-    buyProduct();
-    alert("Thank you for your purchase!");
-  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {

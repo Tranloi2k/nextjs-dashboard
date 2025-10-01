@@ -2,11 +2,6 @@
 import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
 
-type SearchParams = {
-  query?: string;
-  page?: string;
-};
-
 const productsPerPage = 8;
 
 export async function getProducts(query: string, page: number = 1) {
@@ -42,8 +37,4 @@ export async function getProductById(id: string) {
   }
   const data = await res.json();
   return data;
-}
-
-export async function buyProduct() {
-  console.log("Buying product");
 }

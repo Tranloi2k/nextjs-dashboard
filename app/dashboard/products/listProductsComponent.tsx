@@ -1,4 +1,4 @@
-import { getProducts } from "@/app/lib/products";
+import { getProducts } from "@/app/lib/services/products";
 import { StarIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 

@@ -26,63 +26,27 @@ export default async function ProductsPage(props: {
 
   return (
     <div className=" min-h-screen">
-      {/* Breadcrumb */}
-      <nav className="py-4 shadow-sm">
-        <ol className="flex items-center space-x-2 text-sm">
-          <li>
-            <Link href="/" className="text-indigo-600 hover:text-indigo-800">
-              Home
-            </Link>
-          </li>
-          <li>
-            <span className="text-gray-400">/</span>
-          </li>
-          <li className="text-gray-600">Products</li>
-        </ol>
-      </nav>
-
       {/* Main Content */}
       {/* Page Header */}
-      <div className="flex py-2 justify-between items-center mb-2">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Smartphones & Accessories
-        </h1>
-        <div className="flex items-center space-x-4">
-          <div className="flex border rounded-md overflow-hidden">
-            <button
-              className={`p-2 ${
-                viewMode === "grid" ? "bg-gray-200" : "bg-white"
-              }`}
-              title="Grid view"
-            >
-              <Squares2X2Icon className="h-5 w-5 text-gray-600" />
-            </button>
-            <button
-              className={`p-2 ${
-                viewMode === "list" ? "bg-gray-200" : "bg-white"
-              }`}
-              title="List view"
-            >
-              <svg
-                className="h-5 w-5 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
 
       {/* Search Bar */}
       <Search />
+
+      <div className="flex justify-start pt-1">
+        <div className="flex space-x-2">
+          <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+            Smartphones
+          </button>
+          <span className="text-gray-400">|</span>
+          <button className="text-sm font-medium text-gray-600 hover:text-gray-800">
+            Tablets
+          </button>
+          <span className="text-gray-400">|</span>
+          <button className="text-sm font-medium text-gray-600 hover:text-gray-800">
+            Wearables
+          </button>
+        </div>
+      </div>
 
       {/* Filters and Sorting */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
@@ -104,19 +68,40 @@ export default async function ProductsPage(props: {
             </select>
           </div>
         </div>
-        <div className="flex space-x-2">
-          <span className="text-sm text-gray-500">Category:</span>
-          <button className="text-sm font-medium text-indigo-600 hover:text-indigo-800">
-            Smartphones
-          </button>
-          <span className="text-gray-400">|</span>
-          <button className="text-sm font-medium text-gray-600 hover:text-gray-800">
-            Tablets
-          </button>
-          <span className="text-gray-400">|</span>
-          <button className="text-sm font-medium text-gray-600 hover:text-gray-800">
-            Wearables
-          </button>
+
+        <div className="flex py-2 justify-between items-center mb-2">
+          <div className="flex items-center space-x-4">
+            <div className="flex border rounded-md overflow-hidden">
+              <button
+                className={`p-2 ${
+                  viewMode === "grid" ? "bg-gray-200" : "bg-white"
+                }`}
+                title="Grid view"
+              >
+                <Squares2X2Icon className="h-5 w-5 text-gray-600" />
+              </button>
+              <button
+                className={`p-2 ${
+                  viewMode === "list" ? "bg-gray-200" : "bg-white"
+                }`}
+                title="List view"
+              >
+                <svg
+                  className="h-5 w-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

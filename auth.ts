@@ -43,6 +43,11 @@ export const { auth, signIn, signOut } = NextAuth({
               httpOnly: true,
               path: "/",
             });
+            cookieStore.set({
+              name: "user_id",
+              value: response.userId.toString(),
+              path: "/",
+            });
             console.log(cookieStore.get("access_token"));
             return { id: email, name: email };
           } catch (error) {

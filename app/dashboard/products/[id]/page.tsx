@@ -1,4 +1,4 @@
-import { getProductById } from "@/app/lib/products";
+import { getProductById } from "@/app/lib/services/products";
 import {
   ArrowLeftIcon,
   HeartIcon,
