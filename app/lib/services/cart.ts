@@ -20,3 +20,31 @@ export async function getCart() {
   const data = await res.json();
   return data.cart;
 }
+
+export async function addToCart(
+  productId: string,
+  quantity: number,
+  color: string,
+  storage: string
+) {
+  const cookie = await cookies();
+  console.log(productId, quantity, color, storage);
+  const res = await fetch(`${process.env.EXTERNAL_API_URL}/cart`, {
+    method: "POST",
+    headers: {
+      Cookie: cookie.toString(),
+    },
+    body: JSON.stringify({
+      productId,
+      quantity,
+      color,
+      storage,
+    }),
+  });
+
+  console.log("Add to cart response status:", res);
+
+  if (res.status === 401) {
+    unauthorized();
+  }
+}

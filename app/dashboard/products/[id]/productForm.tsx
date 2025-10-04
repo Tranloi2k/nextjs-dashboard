@@ -1,4 +1,5 @@
 "use client";
+import { addToCart } from "@/app/lib/services/cart";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import { ShoppingBagIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
@@ -17,6 +18,18 @@ export default function ProductForm({ product }: any) {
       currency: "USD",
     }).format(price);
   };
+
+  const handleAddToCart = async () => {
+    // Logic to add the product to the cart
+    const cartQuantity = localStorage.getItem("cartItemsCount");
+    localStorage.setItem(
+      "cartItemsCount",
+      (parseInt(cartQuantity || "0") + quantity).toString()
+    );
+
+    await addToCart(product.id, quantity, selectedColor, selectedStorage);
+  };
+
   return (
     <form>
       <div className="mt-6">
@@ -99,7 +112,7 @@ export default function ProductForm({ product }: any) {
 
         <div className="mt-6 grid grid-cols-2 gap-4">
           <button
-            //   onClick={handleAddToCart}
+            onClick={handleAddToCart}
             className="flex items-center justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             <ShoppingBagIcon className="h-5 w-5 mr-2" />

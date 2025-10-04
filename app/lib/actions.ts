@@ -136,3 +136,33 @@ export async function authenticate(
     throw error;
   }
 }
+
+// Google Login function
+export async function googleLogin(userData: {
+  email: string;
+  name: string;
+  googleId: string;
+}) {
+  try {
+    const response = await fetch(
+      `${process.env.EXTERNAL_API_URL}/google-auth`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(userData),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Google login failed: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Google login error:", error);
+    throw error;
+  }
+}

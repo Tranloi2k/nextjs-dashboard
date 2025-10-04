@@ -15,6 +15,5 @@ export const config = {
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
     // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
     "/dashboard/:path*",
-    "/login",
   ],
 };
