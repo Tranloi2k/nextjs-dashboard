@@ -1,5 +1,5 @@
 "use server";
-import { getAuthHeaders } from "@/app/lib/api-client";
+import { authFetch } from "@/app/lib/api-client";
 import { cookies } from "next/headers";
 import { unauthorized } from "next/navigation";
 
@@ -10,12 +10,9 @@ export async function getCart() {
   }
 
   const cookie = await cookies();
-  const res = await fetch(
+  const res = await authFetch(
     `${apiUrl}/cart?` + `userId=${cookie.get("user_id")?.value}`,
-    {
-      method: "GET",
-      headers: await getAuthHeaders(),
-    },
+    { method: "GET" },
   );
 
   if (res.status === 401) {
@@ -42,9 +39,9 @@ export async function addToCart(
     throw new Error("NEXT_PUBLIC_EXTERNAL_API_URL is not configured");
   }
 
-  const res = await fetch(`${apiUrl}/cart`, {
+  const res = await authFetch(`${apiUrl}/cart`, {
     method: "POST",
-    headers: await getAuthHeaders({ "Content-Type": "application/json" }),
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       productId,
       quantity,

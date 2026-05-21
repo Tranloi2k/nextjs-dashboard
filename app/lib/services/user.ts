@@ -1,5 +1,5 @@
 "use server";
-import { getAuthHeaders } from "@/app/lib/api-client";
+import { authFetch } from "@/app/lib/api-client";
 import { cookies } from "next/headers";
 
 export const getUser = async () => {
@@ -15,13 +15,12 @@ export const getUser = async () => {
       return null;
     }
 
-    const response = await fetch(`${apiUrl}/user/${id}`, {
+    const response = await authFetch(`${apiUrl}/user/${id}`, {
       method: "GET",
-      headers: await getAuthHeaders(),
     });
 
     if (!response.ok) {
-      console.error("Failed to fetch user:", response.status);
+      console.error("Failed to fetch user:", response);
       return null;
     }
 

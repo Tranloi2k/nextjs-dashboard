@@ -1,4 +1,9 @@
 import type { NextAuthConfig, Session } from "next-auth";
+import {
+  ACCESS_EXPIRES_COOKIE,
+  isAccessTokenExpired,
+  REFRESH_TOKEN_COOKIE,
+} from "@/app/lib/auth-constants";
 
 // Extend the Session type to include custom properties
 declare module "next-auth" {
@@ -27,20 +32,23 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl, cookies } }) {
       const isLoggedIn = !!auth?.user;
       const hasAccessToken = !!cookies.get("access_token")?.value;
+      const hasRefreshToken = !!cookies.get(REFRESH_TOKEN_COOKIE)?.value;
+      const accessExpired = isAccessTokenExpired(
+        cookies.get(ACCESS_EXPIRES_COOKIE)?.value,
+      );
+      const hasValidSession =
+        isLoggedIn &&
+        ((hasAccessToken && !accessExpired) || hasRefreshToken);
       const isProtectedRoute =
         nextUrl.pathname.startsWith("/products") ||
         nextUrl.pathname.startsWith("/customers");
 
       if (isProtectedRoute) {
-        if (isLoggedIn && hasAccessToken) {
+        if (hasValidSession) {
           return true;
         }
         return false; // Redirect unauthenticated users to login page
-      } else if (
-        isLoggedIn &&
-        hasAccessToken &&
-        nextUrl.pathname === "/login"
-      ) {
+      } else if (hasValidSession && nextUrl.pathname === "/login") {
         return Response.redirect(new URL("/products", nextUrl));
       }
 

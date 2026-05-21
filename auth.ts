@@ -5,6 +5,11 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import Google from "next-auth/providers/google";
 import { googleLogin as googleAuthAction } from "@/app/lib/actions";
+import {
+  clearAuthCookies,
+  REFRESH_TOKEN_COOKIE,
+  setAuthCookies,
+} from "@/app/lib/auth-tokens";
 
 async function login(params: { email: string; password: string }) {
   const { email, password } = params;
@@ -28,16 +33,17 @@ async function login(params: { email: string; password: string }) {
 async function logout() {
   try {
     const cookieStore = await cookies();
-    const accessToken = cookieStore.get("access_token");
+    const accessToken = cookieStore.get("access_token")?.value;
+    const refreshToken = cookieStore.get(REFRESH_TOKEN_COOKIE)?.value;
 
-    if (accessToken?.value) {
-      // Call backend logout endpoint
+    if (accessToken || refreshToken) {
       await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/logout`, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${accessToken.value}`,
+          ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ refreshToken }),
       });
     }
   } catch (error) {
@@ -71,17 +77,10 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           const { email, password } = parsedCredentials.data;
           try {
             const response = await login({ email, password });
-            const cookieStore = await cookies();
-            cookieStore.set({
-              name: "access_token",
-              value: response.accessToken,
-              httpOnly: true,
-              path: "/",
-            });
-            cookieStore.set({
-              name: "user_id",
-              value: response.userId.toString(),
-              path: "/",
+            await setAuthCookies({
+              accessToken: response.accessToken,
+              refreshToken: response.refreshToken,
+              userId: response.userId,
             });
             return { id: email, name: email };
           } catch (error) {
@@ -108,22 +107,10 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             idToken: account.id_token!,
           });
 
-          // Set cookies for Google login
-          const cookieStore = await cookies();
-          cookieStore.set({
-            name: "access_token",
-            value: response.accessToken,
-            httpOnly: true,
-            path: "/",
-            maxAge: 7 * 24 * 60 * 60, // 7 days
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-          });
-          cookieStore.set({
-            name: "user_id",
-            value: response.userId.toString(),
-            path: "/",
-            maxAge: 7 * 24 * 60 * 60, // 7 days
+          await setAuthCookies({
+            accessToken: response.accessToken,
+            refreshToken: response.refreshToken,
+            userId: response.userId,
           });
 
           console.log("✅ Google login successful:");
@@ -186,25 +173,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
         // ✅ Call backend logout
         await logout();
 
-        // ✅ Clear all auth cookies
-        const cookieStore = await cookies();
-
-        // Clear access token
-        cookieStore.set({
-          name: "access_token",
-          value: "",
-          httpOnly: true,
-          path: "/",
-          maxAge: 0, // Delete immediately
-        });
-
-        // Clear user ID
-        cookieStore.set({
-          name: "user_id",
-          value: "",
-          path: "/",
-          maxAge: 0, // Delete immediately
-        });
+        await clearAuthCookies();
 
         console.log("✅ Cookies cleared successfully");
       } catch (error) {

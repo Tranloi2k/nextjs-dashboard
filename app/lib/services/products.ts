@@ -1,5 +1,5 @@
 "use server";
-import { getAuthHeaders } from "@/app/lib/api-client";
+import { authFetch } from "@/app/lib/api-client";
 import { isNextNavigationError } from "@/app/lib/utils";
 import { unauthorized } from "next/navigation";
 
@@ -13,14 +13,11 @@ export async function getProducts(query: string, page: number = 1) {
   }
 
   try {
-    const res = await fetch(
+    const res = await authFetch(
       `${apiUrl}/products?` +
         (query ? `search=${query}&` : "") +
         `page=${page}&limit=${productsPerPage}`,
-      {
-        method: "GET",
-        headers: await getAuthHeaders(),
-      },
+      { method: "GET" },
     );
 
     if (res.status === 401) {
@@ -49,9 +46,8 @@ export async function getProductById(id: string) {
     throw new Error("NEXT_PUBLIC_EXTERNAL_API_URL is not configured");
   }
 
-  const res = await fetch(`${apiUrl}/products/${id}`, {
+  const res = await authFetch(`${apiUrl}/products/${id}`, {
     method: "GET",
-    headers: await getAuthHeaders(),
   });
 
   if (res.status === 401) {
