@@ -22,6 +22,7 @@ async function login(params: { email: string; password: string }) {
     `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/login`,
     options,
   ).then((res) => {
+    console.log(res);
     if (!res.ok) {
       throw new Error("Login failed");
     }

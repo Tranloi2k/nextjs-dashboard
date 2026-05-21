@@ -7,10 +7,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { ArrowRightIcon } from "@heroicons/react/20/solid";
 import { ShopButton } from "@/app/ui/shop/button";
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { authenticate } from "@/app/lib/actions";
 import { useSearchParams } from "next/navigation";
 import GoogleLoginButton from "@/app/ui/google-login-button";
+
+const DEMO_EMAIL = "demo@nova.com";
+const DEMO_PASSWORD = "demo123";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -19,11 +22,18 @@ export default function LoginForm() {
     authenticate,
     undefined,
   );
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+
+  function fillDemoCredentials() {
+    if (emailRef.current) emailRef.current.value = DEMO_EMAIL;
+    if (passwordRef.current) passwordRef.current.value = DEMO_PASSWORD;
+  }
 
   return (
     <div className="space-y-4">
       <form action={formAction} className="space-y-4">
-        <div className="shop-card p-6 md:p-8">
+        <div className="shop-card p-6 !pb-2 md:p-8">
           <div className="space-y-4">
             <div>
               <label
@@ -34,6 +44,7 @@ export default function LoginForm() {
               </label>
               <div className="relative mt-2">
                 <input
+                  ref={emailRef}
                   className="shop-input pl-10"
                   id="email"
                   type="email"
@@ -56,6 +67,7 @@ export default function LoginForm() {
               </label>
               <div className="relative mt-2">
                 <input
+                  ref={passwordRef}
                   className="shop-input pl-10"
                   id="password"
                   type="password"
@@ -99,6 +111,39 @@ export default function LoginForm() {
           </div>
         </div>
       </form>
+
+      <div className="flex flex-col items-center px-1">
+        <p className="font-mono-label text-shop-muted">Demo account</p>
+        <div className="mt-3 w-full rounded-shop-lg border border-dashed border-shop-border-subtle bg-shop-surface px-4 py-3 text-center shadow-shop">
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <span className="inline-flex items-center gap-2 rounded-shop border border-shop-border-subtle bg-shop-bg px-2.5 py-1">
+              <span className="font-mono-label text-[10px] text-shop-muted">
+                Email
+              </span>
+              <span className="font-mono text-xs text-shop-text">
+                {DEMO_EMAIL}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-2 rounded-shop border border-shop-border-subtle bg-shop-bg px-2.5 py-1">
+              <span className="font-mono-label text-[10px] text-shop-muted">
+                Password
+              </span>
+              <span className="font-mono text-xs text-shop-text">
+                {DEMO_PASSWORD}
+              </span>
+            </span>
+          </div>
+          <ShopButton
+            type="button"
+            variant="outline"
+            size="sm"
+            className="mt-3 w-full"
+            onClick={fillDemoCredentials}
+          >
+            Use demo account
+          </ShopButton>
+        </div>
+      </div>
 
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
