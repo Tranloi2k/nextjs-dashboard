@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { FunnelIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
 import ListProductsComponent from "./listProductsComponent";
 import Search from "./search";

@@ -13,7 +13,7 @@ import { getUser } from "@/app/lib/services/user";
 
 export default function Header() {
   const pathname = usePathname();
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [userInfo, setUserInfo] = useState<ApiUserInfo | null>(null);

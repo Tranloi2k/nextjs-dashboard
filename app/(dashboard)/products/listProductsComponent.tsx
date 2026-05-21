@@ -11,7 +11,6 @@ export default async function ListProductsComponent({
   currentPage: number;
 }) {
   const products: ProductListItem[] = await getProducts(query, currentPage);
-  const isFavoriteMap = {};
   const viewMode = "grid" as "grid" | "list";
   const sortOption = "popular" as
     | "popular"
@@ -19,9 +18,6 @@ export default async function ListProductsComponent({
     | "price-high"
     | "rating"
     | "newest";
-  const productsPerPage = 8;
-
-  const toggleFavorite = (productId: number) => {};
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -34,21 +30,6 @@ export default async function ListProductsComponent({
     if (!discount) return price;
     return price * (1 - discount / 100);
   };
-
-  const sortedProducts = [...products].sort((a, b) => {
-    switch (sortOption) {
-      case "price-low":
-        return a.price - b.price;
-      case "price-high":
-        return b.price - a.price;
-      case "rating":
-        return (b.rating ?? b.rate ?? 0) - (a.rating ?? a.rate ?? 0);
-      case "newest":
-        return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
-      default:
-        return b.reviewCount - a.reviewCount; // popular
-    }
-  });
 
   return (
     <>
@@ -125,8 +106,8 @@ export default async function ListProductsComponent({
                           {formatPrice(
                             calculateDiscountedPrice(
                               product.price,
-                              product.discount
-                            )
+                              product.discount,
+                            ),
                           )}
                         </span>
                         <span className="ml-2 text-sm text-gray-500 line-through">
@@ -204,7 +185,8 @@ export default async function ListProductsComponent({
                             <StarIcon
                               key={rating}
                               className={`h-5 w-5 ${
-                                rating <= Math.floor(product.rating ?? product.rate ?? 0)
+                                rating <=
+                                Math.floor(product.rating ?? product.rate ?? 0)
                                   ? "text-yellow-400"
                                   : "text-gray-300"
                               }`}
@@ -229,8 +211,8 @@ export default async function ListProductsComponent({
                               {formatPrice(
                                 calculateDiscountedPrice(
                                   product.price,
-                                  product.discount
-                                )
+                                  product.discount,
+                                ),
                               )}
                             </span>
                             <span className="ml-2 text-sm text-gray-500 line-through">

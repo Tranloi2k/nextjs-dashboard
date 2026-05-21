@@ -1,10 +1,5 @@
 import { getProductById } from "@/app/lib/services/products";
-import {
-  ArrowLeftIcon,
-  HeartIcon,
-  ShoppingBagIcon,
-  StarIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowLeftIcon, HeartIcon, StarIcon } from "@heroicons/react/24/solid";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import SlideImage from "./slideImage";
 import ProductForm from "./productForm";
@@ -34,15 +29,7 @@ export default async function ProductPage(props: {
   const id = slug.split(".").pop() || "";
   const data = await getProductById(id);
   const { reviews } = data;
-  const currentImageIndex = 0;
   const isFavorite = false;
-  const quantity = 1;
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
 
   const product = {
     ...data,
@@ -53,9 +40,6 @@ export default async function ProductPage(props: {
   const cleanedDetailInformation = product.detailInformation;
   const prodDetail = JSON.parse(cleanedDetailInformation);
   const productDetail = JSON.parse(prodDetail);
-  const selectedColor = product.colors[0];
-  const selectedStorage = product.storageOptions[0];
-  const totalPrice = 100;
 
   return (
     <div className="bg-gray-50 rounded-lg p-4 min-h-screen">
@@ -143,11 +127,13 @@ export default async function ProductPage(props: {
                   What is in the Box
                 </h3>
                 <ul className="space-y-2">
-                  {productDetail.accessories.map((item: string, index: number) => (
-                    <li key={index} className="flex items-center">
-                      <span className="text-gray-900">{item}</span>
-                    </li>
-                  ))}
+                  {productDetail.accessories.map(
+                    (item: string, index: number) => (
+                      <li key={index} className="flex items-center">
+                        <span className="text-gray-900">{item}</span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             </div>
