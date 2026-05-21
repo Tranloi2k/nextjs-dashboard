@@ -11,7 +11,7 @@ export default function UnauthorizedPage() {
             <LockClosedIcon className="mx-auto h-16 w-16 text-gray-400" />
             <h3 className="text-lg font-medium text-gray-900">Access Denied</h3>
             <p className="text-gray-600">
-              You don't have permission to access this page. Please log in with
+              You don&apos;t have permission to access this page. Please log in with
               valid credentials to continue.
             </p>
           </div>

@@ -7,6 +7,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
+import type { ApiUserInfo } from "@/app/lib/definitions";
 import { getCart } from "@/app/lib/services/cart";
 import { getUser } from "@/app/lib/services/user";
 
@@ -15,7 +16,7 @@ export default function Header() {
   const { data: session, status } = useSession();
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [userInfo, setUserInfo] = useState<any>(null);
+  const [userInfo, setUserInfo] = useState<ApiUserInfo | null>(null);
 
   useEffect(() => {
     // Fetch cart items count from API

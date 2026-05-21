@@ -19,7 +19,7 @@ export default function SlideImage({
         />
       </div>
       <div className="grid grid-cols-4 gap-2">
-        {images.map((image: any, index: number) => (
+        {images.map((image: string, index: number) => (
           <button
             key={index}
             onClick={() => setCurrentImageIndex(index)}

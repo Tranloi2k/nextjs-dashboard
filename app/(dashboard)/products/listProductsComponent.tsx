@@ -1,4 +1,5 @@
 import { getProducts } from "@/app/lib/services/products";
+import type { ProductListItem } from "@/app/lib/definitions";
 import { StarIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 
@@ -9,10 +10,15 @@ export default async function ListProductsComponent({
   query: string;
   currentPage: number;
 }) {
-  const products: any[] = await getProducts(query, currentPage);
+  const products: ProductListItem[] = await getProducts(query, currentPage);
   const isFavoriteMap = {};
-  let viewMode = "grid";
-  let sortOption = "popular";
+  const viewMode = "grid" as "grid" | "list";
+  const sortOption = "popular" as
+    | "popular"
+    | "price-low"
+    | "price-high"
+    | "rating"
+    | "newest";
   const productsPerPage = 8;
 
   const toggleFavorite = (productId: number) => {};
@@ -36,7 +42,7 @@ export default async function ListProductsComponent({
       case "price-high":
         return b.price - a.price;
       case "rating":
-        return b.rating - a.rating;
+        return (b.rating ?? b.rate ?? 0) - (a.rating ?? a.rate ?? 0);
       case "newest":
         return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
       default:
@@ -100,7 +106,7 @@ export default async function ListProductsComponent({
                       <StarIcon
                         key={rating}
                         className={`h-4 w-4 ${
-                          rating <= Math.floor(product.rate)
+                          rating <= Math.floor(product.rate ?? 0)
                             ? "text-yellow-400"
                             : "text-gray-300"
                         }`}
@@ -198,7 +204,7 @@ export default async function ListProductsComponent({
                             <StarIcon
                               key={rating}
                               className={`h-5 w-5 ${
-                                rating <= Math.floor(product.rating)
+                                rating <= Math.floor(product.rating ?? product.rate ?? 0)
                                   ? "text-yellow-400"
                                   : "text-gray-300"
                               }`}

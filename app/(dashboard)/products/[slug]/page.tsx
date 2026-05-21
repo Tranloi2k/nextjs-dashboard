@@ -9,11 +9,12 @@ import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import SlideImage from "./slideImage";
 import ProductForm from "./productForm";
 import type { Metadata } from "next";
+import type { ProductReview } from "@/app/lib/definitions";
 
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
@@ -142,7 +143,7 @@ export default async function ProductPage(props: {
                   What is in the Box
                 </h3>
                 <ul className="space-y-2">
-                  {productDetail.accessories.map((item: any, index: number) => (
+                  {productDetail.accessories.map((item: string, index: number) => (
                     <li key={index} className="flex items-center">
                       <span className="text-gray-900">{item}</span>
                     </li>
@@ -160,7 +161,7 @@ export default async function ProductPage(props: {
           </h2>
           {reviews && (
             <div className="space-y-6">
-              {reviews.map((review: any, index: number) => (
+              {reviews.map((review: ProductReview, index: number) => (
                 <div
                   key={index}
                   className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"

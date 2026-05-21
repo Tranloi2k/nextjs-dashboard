@@ -1,10 +1,11 @@
 "use client";
 import { addToCart } from "@/app/lib/services/cart";
+import type { ProductFormProduct } from "@/app/lib/definitions";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import { ShoppingBagIcon } from "@heroicons/react/16/solid";
 import { useState } from "react";
 
-export default function ProductForm({ product }: any) {
+export default function ProductForm({ product }: { product: ProductFormProduct }) {
   const [selectedColor, setSelectedColor] = useState(product.colors[0] || "");
   const [selectedStorage, setSelectedStorage] = useState(
     product.storageOptions[0] || ""
@@ -35,7 +36,7 @@ export default function ProductForm({ product }: any) {
       <div className="mt-6">
         <h2 className="text-lg font-medium text-gray-900">Color</h2>
         <div className="flex space-x-2 mt-2">
-          {product.colors.map((color: any) => (
+          {product.colors.map((color: string) => (
             <button
               key={color}
               type="button"
@@ -55,7 +56,7 @@ export default function ProductForm({ product }: any) {
         <div className="mt-6">
           <h2 className="text-lg font-medium text-gray-900">Storage</h2>
           <div className="grid grid-cols-2 gap-2 mt-2">
-            {product.storageOptions.map((storage: any) => (
+            {product.storageOptions.map((storage: string) => (
               <button
                 key={storage}
                 type="button"

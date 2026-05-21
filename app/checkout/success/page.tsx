@@ -5,9 +5,9 @@ import { retrieveCheckoutSession } from "@/app/lib/checkout-sessions";
 export default async function CheckoutSuccess({
   searchParams,
 }: {
-  searchParams: { session_id?: string };
+  searchParams: Promise<{ session_id?: string }>;
 }) {
-  const sessionId = searchParams.session_id;
+  const { session_id: sessionId } = await searchParams;
   let session = null;
 
   if (sessionId) {

@@ -21,8 +21,8 @@ export default async function ProductsPage(props: {
   const query = searchParams?.query || "";
   const currentPage = Number(searchParams?.page) || 1;
 
-  let viewMode = "grid";
-  let sortOption = "popular";
+  const viewMode = "grid" as "grid" | "list";
+  const sortOption = "popular";
 
   return (
     <div className=" min-h-screen">

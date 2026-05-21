@@ -1,8 +1,7 @@
-import type { Stripe } from "stripe";
+import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 
-// Initialize Stripe on server side
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const CURRENCY = "usd";
 
@@ -15,7 +14,7 @@ function formatAmountForStripe(amount: number, currency: string): number {
   });
   const parts = numberFormat.formatToParts(amount);
   let zeroDecimalCurrency = true;
-  for (let part of parts) {
+  for (const part of parts) {
     if (part.type === "decimal") {
       zeroDecimalCurrency = false;
     }
@@ -32,7 +31,7 @@ function formatAmountFromStripe(amount: number, currency: string): number {
   });
   const parts = numberFormat.formatToParts(amount);
   let zeroDecimalCurrency = true;
-  for (let part of parts) {
+  for (const part of parts) {
     if (part.type === "decimal") {
       zeroDecimalCurrency = false;
     }
@@ -178,7 +177,7 @@ export async function handleStripeWebhook(
     const event = stripe.webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET
+      process.env.STRIPE_WEBHOOK_SECRET!
     );
 
     switch (event.type) {
