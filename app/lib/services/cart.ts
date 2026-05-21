@@ -5,14 +5,14 @@ import { unauthorized } from "next/navigation";
 export async function getCart() {
   const cookie = await cookies();
   const res = await fetch(
-    `${process.env.EXTERNAL_API_URL}/cart?` +
+    `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/cart?` +
       `userId=${cookie.get("user_id")?.value}`,
     {
       method: "GET",
       headers: {
         Cookie: cookie.toString(),
       },
-    }
+    },
   );
   if (res.status === 401) {
     unauthorized();
@@ -25,11 +25,11 @@ export async function addToCart(
   productId: string,
   quantity: number,
   color: string,
-  storage: string
+  storage: string,
 ) {
   const cookie = await cookies();
   console.log(productId, quantity, color, storage);
-  const res = await fetch(`${process.env.EXTERNAL_API_URL}/cart`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/cart`, {
     method: "POST",
     headers: {
       Cookie: cookie.toString(),

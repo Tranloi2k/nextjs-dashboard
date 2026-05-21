@@ -5,12 +5,15 @@ export const getUser = async () => {
   try {
     const cookieStore = await cookies();
     const id = cookieStore.get("user_id")?.value;
-    const response = await fetch(`${process.env.EXTERNAL_API_URL}/user/${id}`, {
-      method: "GET",
-      headers: {
-        Cookie: cookieStore.toString(),
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/user/${id}`,
+      {
+        method: "GET",
+        headers: {
+          Cookie: cookieStore.toString(),
+        },
       },
-    });
+    );
     if (!response.ok) {
       console.error("Failed to fetch user");
       return null;

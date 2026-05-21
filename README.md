@@ -98,7 +98,7 @@ yarn install
 
 ```env
 # NestJS Backend API
-EXTERNAL_API_URL="http://localhost:5000/api"
+NEXT_PUBLIC_EXTERNAL_API_URL="http://localhost:5000/api"
 
 # Stripe
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
@@ -175,7 +175,7 @@ nextjs-dashboard/
 ### **NestJS Backend Integration**
 
 1. **API Proxy Setup** - All API calls are proxied to NestJS backend
-2. **Environment Variables** - Configure `EXTERNAL_API_URL` to point to your backend
+2. **Environment Variables** - Configure `NEXT_PUBLIC_EXTERNAL_API_URL` to point to your backend
 3. **CORS Configuration** - Ensure NestJS backend allows requests from Next.js frontend
 
 ### **Stripe Setup**

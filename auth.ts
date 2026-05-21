@@ -14,8 +14,8 @@ async function login(params: { email: string; password: string }) {
     headers: { "Content-Type": "application/json" },
   };
   const response = await fetch(
-    `${process.env.EXTERNAL_API_URL}/login`,
-    options
+    `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/login`,
+    options,
   ).then((res) => {
     if (!res.ok) {
       throw new Error("Login failed");
@@ -32,7 +32,7 @@ async function logout() {
 
     if (accessToken?.value) {
       // Call backend logout endpoint
-      await fetch(`${process.env.EXTERNAL_API_URL}/logout`, {
+      await fetch(`${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/logout`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken.value}`,

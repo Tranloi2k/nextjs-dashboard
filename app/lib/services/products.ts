@@ -7,7 +7,7 @@ const productsPerPage = 8;
 export async function getProducts(query: string, page: number = 1) {
   const cookie = await cookies();
   const res = await fetch(
-    `${process.env.EXTERNAL_API_URL}/products?` +
+    `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/products?` +
       (query ? `search=${query}&` : "") +
       `page=${page}&limit=${productsPerPage}`,
     {
@@ -15,7 +15,7 @@ export async function getProducts(query: string, page: number = 1) {
       headers: {
         Cookie: cookie.toString(),
       },
-    }
+    },
   );
   if (res.status === 401) {
     unauthorized();
@@ -26,12 +26,15 @@ export async function getProducts(query: string, page: number = 1) {
 
 export async function getProductById(id: string) {
   const cookie = await cookies();
-  const res = await fetch(`${process.env.EXTERNAL_API_URL}/products/${id}`, {
-    method: "GET",
-    headers: {
-      Cookie: cookie.toString(),
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_EXTERNAL_API_URL}/products/${id}`,
+    {
+      method: "GET",
+      headers: {
+        Cookie: cookie.toString(),
+      },
     },
-  });
+  );
   if (!res.ok) {
     throw new Error("Failed to fetch product");
   }
