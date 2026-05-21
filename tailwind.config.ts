@@ -61,6 +61,8 @@ const config: Config = {
         'fade-in': 'fadeIn 0.5s ease-out forwards',
         'fade-in-up': 'fadeInUp 0.6s ease-out forwards',
         shimmer: 'shimmer 1.5s infinite',
+        'float-slow': 'floatSlow 6s ease-in-out infinite',
+        'float-slower': 'floatSlow 8s ease-in-out infinite reverse',
       },
       keyframes: {
         fadeIn: {
@@ -73,6 +75,10 @@ const config: Config = {
         },
         shimmer: {
           '100%': { transform: 'translateX(100%)' },
+        },
+        floatSlow: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
         },
       },
       gridTemplateColumns: {

@@ -6,9 +6,141 @@ import {
   ShieldCheckIcon,
   TruckIcon,
   SparklesIcon,
+  DevicePhoneMobileIcon,
+  DeviceTabletIcon,
+  ClockIcon,
+  ShoppingBagIcon,
+  BoltIcon,
 } from "@heroicons/react/24/outline";
+import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import Image from "next/image";
+
+const heroCategories = [
+  {
+    name: "Smartphones",
+    icon: DevicePhoneMobileIcon,
+    tag: "Best sellers",
+    offset: "animate-float-slow",
+  },
+  {
+    name: "Tablets",
+    icon: DeviceTabletIcon,
+    tag: "Pro picks",
+    offset: "animate-float-slower [animation-delay:1s]",
+  },
+  {
+    name: "Wearables",
+    icon: ClockIcon,
+    tag: "Just dropped",
+    offset: "animate-float-slow [animation-delay:2s]",
+  },
+] as const;
+
+function HeroVisual() {
+  return (
+    <div
+      className="relative hidden aspect-[4/5] overflow-hidden rounded-shop-lg border border-shop-border-subtle bg-gradient-to-br from-shop-surface via-shop-surface-muted to-stone-200/60 lg:block"
+      aria-hidden
+    >
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(10,10,10,0.06),transparent_50%),radial-gradient(circle_at_80%_80%,rgba(10,10,10,0.04),transparent_45%)]" />
+      <div className="absolute inset-0 opacity-[0.35] [background-image:linear-gradient(to_right,#0a0a0a08_1px,transparent_1px),linear-gradient(to_bottom,#0a0a0a08_1px,transparent_1px)] [background-size:28px_28px]" />
+
+      <div className="relative flex h-full flex-col justify-between p-6 md:p-8">
+        <div className="flex items-start justify-between gap-3">
+          <span className="shop-badge">Live catalog</span>
+          <span className="inline-flex items-center gap-1 rounded-shop border border-shop-border-subtle bg-shop-surface/80 px-2.5 py-1 text-xs font-medium text-shop-secondary backdrop-blur-sm">
+            <BoltIcon className="h-3.5 w-3.5 text-shop-text" strokeWidth={2} />
+            Ships in 48h
+          </span>
+        </div>
+
+        <div className="relative flex flex-1 flex-col items-center justify-center py-4">
+          <div className="shop-card absolute left-2 top-6 w-[42%] -rotate-6 p-4 shadow-shop-md animate-float-slower">
+            <DevicePhoneMobileIcon
+              className="h-8 w-8 text-shop-text"
+              strokeWidth={1.25}
+            />
+            <p className="mt-3 font-display text-sm font-medium text-shop-text">
+              Smartphones
+            </p>
+            <p className="mt-0.5 text-xs text-shop-muted">128 models</p>
+          </div>
+
+          <div className="shop-card relative z-10 w-[52%] p-5 shadow-shop-lg animate-float-slow">
+            <div className="flex h-14 w-14 items-center justify-center rounded-shop-lg bg-shop-text">
+              <ShoppingBagIcon className="h-7 w-7 text-white" strokeWidth={1.5} />
+            </div>
+            <p className="mt-4 font-display text-base font-medium text-shop-text">
+              Your next upgrade
+            </p>
+            <p className="mt-1 text-xs leading-relaxed text-shop-secondary">
+              Curated tech · Secure checkout
+            </p>
+            <div className="mt-3 flex items-center gap-1">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <StarSolidIcon key={i} className="h-3 w-3 text-shop-text" />
+              ))}
+              <span className="ml-1 text-xs font-medium text-shop-text">
+                4.9
+              </span>
+            </div>
+          </div>
+
+          <div className="shop-card absolute bottom-8 right-0 w-[40%] rotate-6 p-4 shadow-shop-md animate-float-slow [animation-delay:1.5s]">
+            <ClockIcon className="h-8 w-8 text-shop-text" strokeWidth={1.25} />
+            <p className="mt-3 font-display text-sm font-medium text-shop-text">
+              Wearables
+            </p>
+            <p className="mt-0.5 text-xs text-shop-muted">New arrivals</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          {heroCategories.map((cat) => (
+            <div
+              key={cat.name}
+              className={`rounded-shop border border-shop-border-subtle bg-shop-surface/90 px-3 py-2.5 backdrop-blur-sm ${cat.offset}`}
+            >
+              <cat.icon className="h-4 w-4 text-shop-muted" strokeWidth={1.5} />
+              <p className="mt-1.5 text-[11px] font-medium text-shop-text">
+                {cat.name}
+              </p>
+              <p className="text-[10px] text-shop-muted">{cat.tag}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 gap-3 border-t border-shop-border-subtle pt-4">
+          <div>
+            <p className="font-display text-lg font-medium text-shop-text">
+              12k+
+            </p>
+            <p className="text-[10px] uppercase tracking-wider text-shop-muted">
+              Orders
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-lg font-medium text-shop-text">
+              98%
+            </p>
+            <p className="text-[10px] uppercase tracking-wider text-shop-muted">
+              Happy buyers
+            </p>
+          </div>
+          <div>
+            <p className="font-display text-lg font-medium text-shop-text">
+              24/7
+            </p>
+            <p className="text-[10px] uppercase tracking-wider text-shop-muted">
+              Support
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function StorefrontHero() {
   return (
@@ -55,17 +187,7 @@ export function StorefrontHero() {
             </ul>
           </div>
 
-          <div className="relative hidden aspect-[4/5] overflow-hidden rounded-shop-lg bg-shop-surface-muted lg:block">
-            <Image
-              src="/hero-desktop.png"
-              alt="Premium tech collection"
-              fill
-              className="object-cover object-center"
-              priority
-              sizes="(max-width: 1024px) 50vw, 600px"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-shop-text/20 to-transparent" />
-          </div>
+          <HeroVisual />
         </div>
       </div>
     </section>
