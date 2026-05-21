@@ -1,7 +1,9 @@
 import { getProducts } from "@/app/lib/services/products";
 import type { ProductListItem } from "@/app/lib/definitions";
-import { StarIcon, ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { StarIcon, ShoppingBagIcon } from "@heroicons/react/24/solid";
+import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import Image from "next/image";
 
 export default async function ListProductsComponent({
   query,
@@ -12,245 +14,186 @@ export default async function ListProductsComponent({
 }) {
   const products: ProductListItem[] = await getProducts(query, currentPage);
   const viewMode = "grid" as "grid" | "list";
-  const sortOption = "popular" as
-    | "popular"
-    | "price-low"
-    | "price-high"
-    | "rating"
-    | "newest";
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat("en-US", {
       style: "currency",
       currency: "USD",
     }).format(price);
-  };
 
   const calculateDiscountedPrice = (price: number, discount?: number) => {
     if (!discount) return price;
     return price * (1 - discount / 100);
   };
 
+  const productHref = (product: ProductListItem) =>
+    `/products/${product.name.replace(/ /g, "-")}.${product.id}`;
+
   if (products.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center">
-        <p className="text-gray-600">
-          No products found. Sign in and ensure the backend API is running at{" "}
-          <code className="text-sm text-indigo-600">
-            {process.env.NEXT_PUBLIC_EXTERNAL_API_URL ?? "NEXT_PUBLIC_EXTERNAL_API_URL"}
+      <div className="shop-card flex flex-col items-center justify-center px-8 py-16 text-center">
+        <p className="font-display text-lg font-medium text-shop-text">
+          No products found
+        </p>
+        <p className="mt-2 max-w-sm text-sm text-shop-secondary">
+          Sign in and ensure the backend API is running at{" "}
+          <code className="rounded-sm bg-shop-surface-muted px-1.5 py-0.5 text-xs text-shop-text">
+            {process.env.NEXT_PUBLIC_EXTERNAL_API_URL ??
+              "NEXT_PUBLIC_EXTERNAL_API_URL"}
           </code>
-          .
         </p>
       </div>
     );
   }
 
-  return (
-    <>
-      {viewMode === "grid" ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="relative">
-                <Link
-                  href={`/products/${product.name.replace(/ /g, "-")}.${
-                    product.id
-                  }`}
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-full h-48 object-contain p-4"
-                  />
-                </Link>
-                <button className="absolute top-2 right-2 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100">
-                  {/* {isFavoriteMap[product.id] ? (
-                      <HeartIconSolid className="h-6 w-6 text-red-500" />
-                    ) : (
-                      <HeartIcon className="h-6 w-6 text-gray-400 hover:text-red-500" />
-                    )} */}
-                </button>
-                {product.isNew && (
-                  <span className="absolute top-2 left-2 bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                    New
-                  </span>
-                )}
+  if (viewMode === "grid") {
+    return (
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
+        {products.map((product) => (
+          <article
+            key={product.id}
+            className="group shop-card-interactive flex flex-col overflow-hidden"
+          >
+            <div className="relative aspect-[4/5] overflow-hidden bg-shop-surface-muted">
+              <Link href={productHref(product)} className="block h-full">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-contain p-6 transition-transform duration-500 ease-shop group-hover:scale-[1.03]"
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                />
+              </Link>
+              <div className="absolute left-3 top-3 flex flex-col gap-1.5">
+                {product.isNew && <span className="shop-badge">New</span>}
                 {product.discount && (
-                  <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                    -{product.discount}%
+                  <span className="shop-badge-sale">-{product.discount}%</span>
+                )}
+              </div>
+              <button
+                className="absolute bottom-3 right-3 flex h-10 w-10 translate-y-2 items-center justify-center rounded-full bg-shop-text text-white opacity-0 shadow-shop-md transition-all duration-shop ease-shop group-hover:translate-y-0 group-hover:opacity-100"
+                aria-label="Add to bag"
+              >
+                <ShoppingBagIcon className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="flex flex-1 flex-col p-4">
+              <Link href={productHref(product)} className="block">
+                <h3 className="text-sm font-medium leading-snug text-shop-text transition-colors group-hover:text-shop-secondary">
+                  {product.name}
+                </h3>
+              </Link>
+
+              <div className="mt-2 flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((rating) =>
+                  rating <= Math.floor(product.rate ?? 0) ? (
+                    <StarIcon
+                      key={rating}
+                      className="h-3.5 w-3.5 text-shop-text"
+                    />
+                  ) : (
+                    <StarOutlineIcon
+                      key={rating}
+                      className="h-3.5 w-3.5 text-shop-border"
+                    />
+                  ),
+                )}
+                <span className="ml-1 text-xs text-shop-muted">
+                  ({product.rate})
+                </span>
+              </div>
+
+              <div className="mt-auto pt-3">
+                {product.discount ? (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-sm font-semibold text-shop-text">
+                      {formatPrice(
+                        calculateDiscountedPrice(
+                          product.price,
+                          product.discount,
+                        ),
+                      )}
+                    </span>
+                    <span className="text-xs text-shop-muted line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-sm font-semibold text-shop-text">
+                    {formatPrice(product.price)}
                   </span>
                 )}
               </div>
-              <div className="p-4">
-                <Link
-                  href={`/products/${product.name.replace(/ /g, "-")}.${
-                    product.id
-                  }`}
-                  className="block"
-                >
-                  <h3 className="text-lg font-medium text-gray-900 mb-1 hover:text-indigo-600">
+            </div>
+          </article>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-8 space-y-4">
+      {products.map((product) => (
+        <article
+          key={product.id}
+          className="group shop-card-interactive overflow-hidden"
+        >
+          <div className="flex flex-col sm:flex-row">
+            <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-shop-surface-muted sm:w-48 md:w-56">
+              <Link href={productHref(product)} className="relative block h-full">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-contain p-6"
+                  sizes="(max-width: 640px) 100vw, 224px"
+                />
+              </Link>
+              {product.isNew && (
+                <span className="shop-badge absolute left-3 top-3">New</span>
+              )}
+            </div>
+            <div className="flex flex-1 flex-col justify-between p-5 md:p-6">
+              <div>
+                <Link href={productHref(product)}>
+                  <h3 className="font-display text-lg font-medium text-shop-text transition-colors hover:text-shop-secondary">
                     {product.name}
                   </h3>
                 </Link>
-                <div className="flex items-center mb-2">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((rating) => (
+                <div className="mt-2 flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((rating) =>
+                    rating <=
+                    Math.floor(product.rating ?? product.rate ?? 0) ? (
                       <StarIcon
                         key={rating}
-                        className={`h-4 w-4 ${
-                          rating <= Math.floor(product.rate ?? 0)
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className="h-4 w-4 text-shop-text"
                       />
-                    ))}
-                  </div>
-                  <span className="ml-1 text-xs text-gray-600">
-                    ({product.rate})
+                    ) : (
+                      <StarOutlineIcon
+                        key={rating}
+                        className="h-4 w-4 text-shop-border"
+                      />
+                    ),
+                  )}
+                  <span className="ml-1 text-xs text-shop-muted">
+                    ({product.reviewCount} reviews)
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    {product.discount ? (
-                      <>
-                        <span className="text-lg font-bold text-gray-900">
-                          {formatPrice(
-                            calculateDiscountedPrice(
-                              product.price,
-                              product.discount,
-                            ),
-                          )}
-                        </span>
-                        <span className="ml-2 text-sm text-gray-500 line-through">
-                          {formatPrice(product.price)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-lg font-bold text-gray-900">
-                        {formatPrice(product.price)}
-                      </span>
-                    )}
-                  </div>
-                  <button className="p-2 rounded-full bg-indigo-100 text-indigo-600 hover:bg-indigo-200">
-                    <ShoppingBagIcon className="h-5 w-5" />
-                  </button>
-                </div>
+              </div>
+              <div className="mt-4 flex items-center justify-between gap-4">
+                <span className="text-base font-semibold text-shop-text">
+                  {formatPrice(product.price)}
+                </span>
+                <button className="inline-flex items-center gap-2 rounded-shop bg-shop-text px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-shop-accent-hover">
+                  <ShoppingBagIcon className="h-4 w-4" />
+                  Add to bag
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="flex flex-col md:flex-row">
-                <div className="md:w-1/4 relative">
-                  <Link
-                    href={`/products/${product.name.replace(/ /g, "-")}.${
-                      product.id
-                    }`}
-                  >
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-contain p-4"
-                    />
-                  </Link>
-                  <button className="absolute top-2 right-2 p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100">
-                    {/* {isFavoriteMap[product.id] ? (
-                        <HeartIconSolid className="h-6 w-6 text-red-500" />
-                      ) : (
-                        <HeartIcon className="h-6 w-6 text-gray-400 hover:text-red-500" />
-                      )} */}
-                  </button>
-                  {product.isNew && (
-                    <span className="absolute top-2 left-2 bg-indigo-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                      New
-                    </span>
-                  )}
-                  {product.discount && (
-                    <span className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded">
-                      -{product.discount}%
-                    </span>
-                  )}
-                </div>
-                <div className="md:w-3/4 p-4">
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <Link
-                        href={`/products/${product.name.replace(/ /g, "-")}.${
-                          product.id
-                        }`}
-                        className="block"
-                      >
-                        <h3 className="text-xl font-medium text-gray-900 mb-1 hover:text-indigo-600">
-                          {product.name}
-                        </h3>
-                      </Link>
-                      <div className="flex items-center mb-2">
-                        <div className="flex">
-                          {[1, 2, 3, 4, 5].map((rating) => (
-                            <StarIcon
-                              key={rating}
-                              className={`h-5 w-5 ${
-                                rating <=
-                                Math.floor(product.rating ?? product.rate ?? 0)
-                                  ? "text-yellow-400"
-                                  : "text-gray-300"
-                              }`}
-                            />
-                          ))}
-                        </div>
-                        <span className="ml-1 text-sm text-gray-600">
-                          ({product.reviewCount} reviews)
-                        </span>
-                      </div>
-                      <p className="text-gray-600 mb-4">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                        Sed do eiusmod tempor incididunt ut labore et dolore
-                        magna aliqua.
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        {product.discount ? (
-                          <>
-                            <span className="text-xl font-bold text-gray-900">
-                              {formatPrice(
-                                calculateDiscountedPrice(
-                                  product.price,
-                                  product.discount,
-                                ),
-                              )}
-                            </span>
-                            <span className="ml-2 text-sm text-gray-500 line-through">
-                              {formatPrice(product.price)}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="text-xl font-bold text-gray-900">
-                            {formatPrice(product.price)}
-                          </span>
-                        )}
-                      </div>
-                      <button className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center">
-                        <ShoppingBagIcon className="h-5 w-5 mr-2" />
-                        Add to Cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </>
+          </div>
+        </article>
+      ))}
+    </div>
   );
 }

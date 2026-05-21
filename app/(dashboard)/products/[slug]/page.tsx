@@ -1,10 +1,14 @@
 import { getProductById } from "@/app/lib/services/products";
-import { ArrowLeftIcon, HeartIcon, StarIcon } from "@heroicons/react/24/solid";
+import { StarIcon } from "@heroicons/react/24/solid";
+import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
+import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import SlideImage from "./slideImage";
 import ProductForm from "./productForm";
 import type { Metadata } from "next";
 import type { ProductReview } from "@/app/lib/definitions";
+import Link from "next/link";
+import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 
 export async function generateMetadata({
   params,
@@ -42,148 +46,153 @@ export default async function ProductPage(props: {
   const productDetail = JSON.parse(prodDetail);
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4 min-h-screen">
-      {/* Navigation/Header */}
-      <nav className="flex pb-4 items-center">
-        <button className="mr-4">
-          <ArrowLeftIcon className="h-5 w-5 text-gray-600" />
-        </button>
-        {/* <h1 className="text-xl font-semibold text-gray-900">Product Details</h1> */}
+    <div className="shop-content-wrap py-8 md:py-12">
+      <nav className="mb-8">
+        <Link
+          href="/products"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-shop-secondary transition-colors hover:text-shop-text"
+        >
+          <ChevronLeftIcon className="h-4 w-4" strokeWidth={1.5} />
+          Back to products
+        </Link>
       </nav>
 
-      <div className="w-full">
-        <div className="lg:grid lg:grid-cols-2 lg:gap-6">
-          {/* Product Images */}
-          <SlideImage images={product.images} name={product.name} />
+      <div className="lg:grid lg:grid-cols-2 lg:gap-12 xl:gap-16">
+        <SlideImage images={product.images} name={product.name} />
 
-          {/* Product Info */}
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {product.name}
-                </h1>
-                <div className="flex items-center mt-1">
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map((rating) => (
+        <div className="mt-10 lg:mt-0">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="font-mono-label text-shop-muted">Product</p>
+              <h1 className="font-display mt-2 text-display-md font-medium tracking-tight text-shop-text">
+                {product.name}
+              </h1>
+              <div className="mt-3 flex items-center gap-2">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((rating) =>
+                    rating <= Math.floor(product.rate) ? (
                       <StarIcon
                         key={rating}
-                        className={`h-5 w-5 ${
-                          rating <= Math.floor(product.rate)
-                            ? "text-yellow-400"
-                            : "text-gray-300"
-                        }`}
+                        className="h-4 w-4 text-shop-text"
                       />
-                    ))}
-                  </div>
-                  <span className="ml-2 text-sm text-gray-600">
-                    {product.rate} ({product.reviewCount} reviews)
-                  </span>
-                </div>
-              </div>
-              <button
-                // onClick={() => setIsFavorite(!isFavorite)}
-                className="text-gray-400 hover:text-red-500"
-              >
-                {isFavorite ? (
-                  <HeartIconSolid className="h-6 w-6 text-red-500" />
-                ) : (
-                  <HeartIcon className="h-6 w-6" />
-                )}
-              </button>
-            </div>
-
-            <p className="mt-4 text-gray-600">{product.description}</p>
-
-            <ProductForm product={{ ...product }} />
-          </div>
-        </div>
-
-        {/* Product Details Section */}
-        <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            Product Details
-          </h2>
-          {productDetail && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Specifications
-                </h3>
-                <ul className="space-y-2">
-                  {Object.entries(productDetail).map(([key, value]) => {
-                    if (Array.isArray(value)) return null; // Skip arrays like accessories here
-                    return (
-                      <li key={key} className="flex justify-between">
-                        <span className="text-gray-600 capitalize">{key}</span>
-                        <span className="text-gray-900">{String(value)}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-              <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  What is in the Box
-                </h3>
-                <ul className="space-y-2">
-                  {productDetail.accessories.map(
-                    (item: string, index: number) => (
-                      <li key={index} className="flex items-center">
-                        <span className="text-gray-900">{item}</span>
-                      </li>
+                    ) : (
+                      <StarOutlineIcon
+                        key={rating}
+                        className="h-4 w-4 text-shop-border"
+                      />
                     ),
                   )}
-                </ul>
+                </div>
+                <span className="text-sm text-shop-muted">
+                  {product.rate} · {product.reviewCount} reviews
+                </span>
               </div>
             </div>
-          )}
-        </div>
+            <button
+              className="rounded-shop p-2 text-shop-muted transition-colors hover:bg-shop-surface-muted hover:text-shop-error"
+              aria-label="Add to wishlist"
+            >
+              {isFavorite ? (
+                <HeartIconSolid className="h-5 w-5 text-shop-error" />
+              ) : (
+                <HeartIcon className="h-5 w-5" strokeWidth={1.5} />
+              )}
+            </button>
+          </div>
 
-        {/* Reviews Section */}
-        <div className="mt-12 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">
-            Customer Reviews
-          </h2>
-          {reviews && (
-            <div className="space-y-6">
-              {reviews.map((review: ProductReview, index: number) => (
-                <div
-                  key={index}
-                  className="border-b border-gray-200 pb-6 last:border-0 last:pb-0"
-                >
-                  <div className="flex items-center">
-                    <div className="flex">
-                      {[1, 2, 3, 4, 5].map((rating) => (
-                        <StarIcon
-                          key={rating}
-                          className={`h-5 w-5 ${
-                            rating <= Math.floor(review.rating)
-                              ? "text-yellow-400"
-                              : "text-gray-300"
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <span className="ml-2 text-sm font-medium text-gray-900">
-                      {Math.floor(review.rating)}
-                    </span>
-                  </div>
-                  <h3 className="text-md font-medium text-gray-900 mt-2">
-                    {review.comment}
-                  </h3>
-                  <p className="mt-2 text-sm text-gray-500">
-                    By {review.name || "Unknown"} • October 15, 2023
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-          <button className="mt-6 text-indigo-600 hover:text-indigo-800 font-medium">
-            See all reviews
-          </button>
+          <p className="mt-6 text-sm leading-relaxed text-shop-secondary">
+            {product.description}
+          </p>
+
+          <ProductForm product={{ ...product }} />
         </div>
       </div>
+
+      <section className="mt-16 md:mt-20">
+        <h2 className="shop-section-title">Product details</h2>
+        {productDetail && (
+          <div className="shop-card mt-6 grid gap-8 p-6 md:grid-cols-2 md:p-8">
+            <div>
+              <h3 className="font-mono-label text-shop-muted">Specifications</h3>
+              <ul className="mt-4 space-y-3">
+                {Object.entries(productDetail).map(([key, value]) => {
+                  if (Array.isArray(value)) return null;
+                  return (
+                    <li
+                      key={key}
+                      className="flex justify-between gap-4 border-b border-shop-border-subtle pb-3 text-sm last:border-0"
+                    >
+                      <span className="capitalize text-shop-secondary">
+                        {key}
+                      </span>
+                      <span className="font-medium text-shop-text">
+                        {String(value)}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+            <div>
+              <h3 className="font-mono-label text-shop-muted">
+                What&apos;s in the box
+              </h3>
+              <ul className="mt-4 space-y-2">
+                {productDetail.accessories.map(
+                  (item: string, index: number) => (
+                    <li
+                      key={index}
+                      className="flex items-center gap-2 text-sm text-shop-text"
+                    >
+                      <span className="h-1 w-1 rounded-full bg-shop-text" />
+                      {item}
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="mt-16 md:mt-20">
+        <h2 className="shop-section-title">Customer reviews</h2>
+        {reviews && (
+          <div className="mt-6 space-y-0">
+            {reviews.map((review: ProductReview, index: number) => (
+              <div
+                key={index}
+                className="border-b border-shop-border-subtle py-6 last:border-0"
+              >
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((rating) =>
+                    rating <= Math.floor(review.rating) ? (
+                      <StarIcon
+                        key={rating}
+                        className="h-3.5 w-3.5 text-shop-text"
+                      />
+                    ) : (
+                      <StarOutlineIcon
+                        key={rating}
+                        className="h-3.5 w-3.5 text-shop-border"
+                      />
+                    ),
+                  )}
+                </div>
+                <p className="mt-3 text-sm leading-relaxed text-shop-text">
+                  {review.comment}
+                </p>
+                <p className="mt-2 text-xs text-shop-muted">
+                  {review.name || "Anonymous"} · October 15, 2023
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+        <button className="mt-6 text-sm font-medium text-shop-text underline-offset-4 transition-opacity hover:underline">
+          See all reviews
+        </button>
+      </section>
     </div>
   );
 }

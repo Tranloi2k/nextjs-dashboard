@@ -24,10 +24,10 @@ export default function GoogleLoginButton() {
       role="button"
       onClick={handleGoogleLogin}
       disabled={isLoading}
-      className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-6 py-3 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-3 rounded-shop border border-shop-border bg-shop-surface px-6 py-3 text-sm font-medium text-shop-text transition-all duration-shop ease-shop hover:border-shop-text hover:bg-shop-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-text focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
     >
       {isLoading ? (
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600"></div>
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-shop-border border-t-shop-text"></div>
       ) : (
         <svg className="h-5 w-5" viewBox="0 0 24 24">
           <path

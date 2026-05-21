@@ -10,6 +10,7 @@ import { useSession, signOut } from "next-auth/react";
 import type { ApiUserInfo } from "@/app/lib/definitions";
 import { getCart } from "@/app/lib/services/cart";
 import { getUser } from "@/app/lib/services/user";
+import Image from "next/image";
 
 export default function Header() {
   const pathname = usePathname();
@@ -191,10 +192,12 @@ export default function Header() {
             {/* ✅ User Avatar or Icon */}
             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 flex items-center justify-center">
               {displayUser && displayUser.avatar ? (
-                <img
+                <Image
                   src={displayUser.avatar}
-                  alt={displayUser.name}
-                  className="w-8 h-8 rounded-full object-cover"
+                  alt={displayUser.name ?? "User"}
+                  width={32}
+                  height={32}
+                  className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
                 <UserIcon className="w-5 h-5 text-white" />

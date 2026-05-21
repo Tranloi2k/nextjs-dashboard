@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/app/ui/button";
+import { ShopButton } from "@/app/ui/shop/button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
@@ -9,7 +9,7 @@ export default function Search() {
   const { replace } = useRouter();
   const pathname = usePathname();
   const [query, setQuery] = useState(
-    searchParams.get("query")?.toString() || ""
+    searchParams.get("query")?.toString() || "",
   );
 
   async function search() {
@@ -24,26 +24,33 @@ export default function Search() {
   }
 
   return (
-    <div className="flex justify-between items-center mb-2">
-      <div className="relative flex flex-1 flex-shrink-0">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="relative flex-1">
         <label htmlFor="search" className="sr-only">
-          Search
+          Search products
         </label>
+        <MagnifyingGlassIcon
+          className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-shop-muted"
+          strokeWidth={1.5}
+        />
         <input
+          id="search"
           name="query"
-          className="peer mr-4 block w-full rounded-md border border-gray-200 py-[9px] text-sm outline-2 placeholder:text-gray-500"
+          className="shop-input pl-11"
           placeholder="Search products..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && search()}
         />
       </div>
-      <Button
-        className="flex items-center justify-center flex-wrap"
+      <ShopButton
+        type="button"
+        variant="primary"
         onClick={() => search()}
+        className="shrink-0"
       >
-        <MagnifyingGlassIcon className="h-[18px] w-[18px]  text-white peer-focus:text-gray-900" />
-        <span className="ml-2">Search</span>
-      </Button>
+        Search
+      </ShopButton>
     </div>
   );
 }

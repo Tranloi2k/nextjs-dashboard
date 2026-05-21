@@ -2,6 +2,62 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-shop-bg text-shop-text antialiased;
+  }
+
+  ::selection {
+    @apply bg-shop-text text-white;
+  }
+}
+
+@layer components {
+  .shop-content-wrap {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .shop-card {
+    @apply rounded-shop-lg border border-shop-border-subtle bg-shop-surface shadow-shop transition-all duration-shop ease-shop;
+  }
+
+  .shop-card-interactive {
+    @apply shop-card hover:border-shop-border hover:shadow-shop-hover;
+  }
+
+  .font-mono-label {
+    @apply font-sans text-[11px] font-medium uppercase tracking-[0.18em];
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .shop-input {
+    @apply w-full rounded-shop border border-shop-border bg-shop-surface px-4 py-2.5 text-sm text-shop-text placeholder:text-shop-muted transition-colors duration-shop ease-shop focus:border-shop-text focus:outline-none focus:ring-1 focus:ring-shop-text;
+  }
+
+  .shop-section-title {
+    @apply font-display text-display-md font-medium tracking-tight text-shop-text;
+  }
+
+  .shop-badge {
+    @apply inline-flex items-center rounded-sm bg-shop-text px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-white;
+  }
+
+  .shop-badge-sale {
+    @apply shop-badge bg-shop-sale;
+  }
+
+  .shop-divider {
+    @apply border-t border-shop-border-subtle;
+  }
+}
+
 input[type='number'] {
   -moz-appearance: textfield;
   appearance: textfield;

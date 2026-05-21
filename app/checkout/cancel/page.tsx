@@ -1,39 +1,45 @@
 import Link from "next/link";
-import { XCircleIcon } from "@heroicons/react/24/solid";
+import { XCircleIcon } from "@heroicons/react/24/outline";
+import { ShopButton } from "@/app/ui/shop/button";
 
 export default function CheckoutCancel() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-        <XCircleIcon className="mx-auto h-16 w-16 text-red-500 mb-4" />
-        
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">
-          Payment Cancelled
+    <div className="shop-content-wrap flex min-h-[60vh] items-center justify-center py-16 md:py-24">
+      <div className="w-full max-w-md text-center">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
+          <XCircleIcon className="h-8 w-8 text-shop-error" strokeWidth={1.5} />
+        </div>
+
+        <h1 className="font-display mt-6 text-display-md font-medium tracking-tight text-shop-text">
+          Payment cancelled
         </h1>
-        
-        <p className="text-gray-600 mb-6">
+
+        <p className="mt-3 text-sm leading-relaxed text-shop-secondary">
           Your payment was cancelled. No charges were made to your account.
         </p>
 
-        <div className="space-y-3">
-          <Link
-            href="/products"
-            className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors inline-block"
-          >
-            Continue Shopping
+        <div className="mt-8 flex flex-col gap-3">
+          <Link href="/products">
+            <ShopButton variant="primary" size="lg" className="w-full">
+              Continue shopping
+            </ShopButton>
           </Link>
-          
-          <Link
-            href="/products"
-            className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors inline-block"
-          >
-            Go to Dashboard
+          <Link href="/">
+            <ShopButton variant="outline" size="lg" className="w-full">
+              Back to home
+            </ShopButton>
           </Link>
         </div>
 
-        <div className="mt-6 text-sm text-gray-500">
-          <p>Need help? <a href="#" className="text-indigo-600 hover:text-indigo-500">Contact Support</a></p>
-        </div>
+        <p className="mt-8 text-xs text-shop-muted">
+          Need help?{" "}
+          <a
+            href="#"
+            className="font-medium text-shop-text underline-offset-4 hover:underline"
+          >
+            Contact support
+          </a>
+        </p>
       </div>
     </div>
   );

@@ -1,14 +1,15 @@
 import "@/app/ui/global.css";
-import { inter } from "@/app/ui/fonts";
+import { inter, outfit } from "@/app/ui/fonts";
 import { Metadata } from "next";
 import Providers from "@/app/providers";
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | Acme Dashboard",
-    default: "Acme Dashboard",
+    template: "%s | NOVA",
+    default: "NOVA — Premium Tech Store",
   },
-  description: "The official Next.js Learn Dashboard built with App Router.",
+  description:
+    "Discover premium smartphones, tablets, and wearables. Secure checkout and fast delivery.",
   metadataBase: new URL("https://next-learn-dashboard.vercel.sh"),
 };
 
@@ -19,7 +20,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} antialiased`}>
+      <body
+        className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>
