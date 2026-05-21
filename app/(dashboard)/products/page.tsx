@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { FunnelIcon, Squares2X2Icon } from "@heroicons/react/24/outline";
-import Pagination from "@/app/ui/invoices/pagination";
 import ListProductsComponent from "./listProductsComponent";
 import Search from "./search";
 import { Suspense } from "react";
@@ -112,9 +111,7 @@ export default async function ProductsPage(props: {
         <ListProductsComponent query={query} currentPage={currentPage} />
       </Suspense>
 
-      <div className="mt-5 flex w-full justify-center">
-        <Pagination totalPages={1} />
-      </div>
+      <div className="mt-5 flex w-full justify-center">1</div>
       {/* Pagination */}
     </div>
   );
