@@ -9,7 +9,7 @@ export default function GoogleLoginButton() {
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/dashboard" });
+      await signIn("google", { callbackUrl: "/products" });
     } catch (error) {
       console.error("Google login error:", error);
     } finally {

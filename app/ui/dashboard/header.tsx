@@ -158,10 +158,10 @@ export default function Header() {
         {/* ✅ Breadcrumb */}
         <div className="text-sm text-gray-500">
           <span className="text-indigo-600">Dashboard</span>
-          {pathname !== "/dashboard" && (
+          {pathname !== "/products" && (
             <>
               <span className="mx-2">›</span>
-              <span>{formatPathname(pathname.replace("/dashboard", ""))}</span>
+              <span>{formatPathname(pathname)}</span>
             </>
           )}
         </div>

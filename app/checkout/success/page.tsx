@@ -52,14 +52,14 @@ export default async function CheckoutSuccess({
 
         <div className="space-y-3">
           <Link
-            href="/dashboard/products"
+            href="/products"
             className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors inline-block"
           >
             Continue Shopping
           </Link>
 
           <Link
-            href="/dashboard"
+            href="/products"
             className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-md hover:bg-gray-300 transition-colors inline-block"
           >
             Go to Dashboard

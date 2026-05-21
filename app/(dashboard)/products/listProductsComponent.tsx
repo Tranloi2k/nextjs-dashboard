@@ -31,6 +31,20 @@ export default async function ListProductsComponent({
     return price * (1 - discount / 100);
   };
 
+  if (products.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center">
+        <p className="text-gray-600">
+          No products found. Sign in and ensure the backend API is running at{" "}
+          <code className="text-sm text-indigo-600">
+            {process.env.NEXT_PUBLIC_EXTERNAL_API_URL ?? "NEXT_PUBLIC_EXTERNAL_API_URL"}
+          </code>
+          .
+        </p>
+      </div>
+    );
+  }
+
   return (
     <>
       {viewMode === "grid" ? (

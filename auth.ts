@@ -48,6 +48,7 @@ async function logout() {
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
+  secret: process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -137,17 +138,41 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       return true;
     },
     async session({ session, token }) {
-      // Add custom session data
       if (token) {
-        session.user.id = token.sub!;
+        session.accessToken =
+          typeof token.accessToken === "string" ? token.accessToken : undefined;
+        session.expiresAt =
+          typeof token.expiresAt === "number" ? token.expiresAt : undefined;
+
+        if (typeof token.expiresAt === "number") {
+          const timeLeft = token.expiresAt - Math.floor(Date.now() / 1000);
+          if (timeLeft < 24 * 60 * 60) {
+            session.nearExpiry = true;
+          }
+        }
+
+        if (token.sub) {
+          session.user.id = token.sub;
+        }
       }
 
       return session;
     },
     async jwt({ token, user, account }) {
-      // Handle initial sign in
       if (account && user) {
-        token.provider = account.provider;
+        return {
+          ...token,
+          accessToken: account.access_token,
+          expiresAt: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+          provider: account.provider,
+        };
+      }
+
+      if (
+        typeof token.expiresAt === "number" &&
+        Date.now() / 1000 > token.expiresAt
+      ) {
+        return null;
       }
 
       return token;

@@ -24,16 +24,23 @@ export const authConfig = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
+    authorized({ auth, request: { nextUrl, cookies } }) {
       const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/products");
+      const hasAccessToken = !!cookies.get("access_token")?.value;
+      const isProtectedRoute =
+        nextUrl.pathname.startsWith("/products") ||
+        nextUrl.pathname.startsWith("/customers");
 
-      if (isOnDashboard) {
-        if (isLoggedIn) {
+      if (isProtectedRoute) {
+        if (isLoggedIn && hasAccessToken) {
           return true;
         }
         return false; // Redirect unauthenticated users to login page
-      } else if (isLoggedIn && nextUrl.pathname === "/login") {
+      } else if (
+        isLoggedIn &&
+        hasAccessToken &&
+        nextUrl.pathname === "/login"
+      ) {
         return Response.redirect(new URL("/products", nextUrl));
       }
 

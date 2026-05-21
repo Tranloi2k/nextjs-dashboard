@@ -1,5 +1,11 @@
 import { Revenue } from './definitions';
 
+export function isNextNavigationError(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) return false;
+  const digest = (error as { digest?: string }).digest;
+  return typeof digest === 'string' && digest.startsWith('NEXT_');
+}
+
 export const formatCurrency = (amount: number) => {
   return (amount / 100).toLocaleString('en-US', {
     style: 'currency',
