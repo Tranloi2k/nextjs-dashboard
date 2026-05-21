@@ -13,11 +13,11 @@ import type { Metadata } from "next";
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: { slug: string };
 }): Promise<Metadata> {
   const resolvedParams = await params;
-  const id = resolvedParams.id;
-
+  const slug = resolvedParams.slug;
+  const id = slug.split(".").pop() || "";
   const data = await getProductById(id);
 
   return {
@@ -27,9 +27,10 @@ export async function generateMetadata({
 }
 
 export default async function ProductPage(props: {
-  params: Promise<{ id: string }>;
+  params: Promise<{ slug: string }>;
 }) {
-  const { id } = await props.params;
+  const { slug } = await props.params;
+  const id = slug.split(".").pop() || "";
   const data = await getProductById(id);
   const { reviews } = data;
   const currentImageIndex = 0;

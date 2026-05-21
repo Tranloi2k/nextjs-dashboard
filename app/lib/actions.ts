@@ -138,22 +138,15 @@ export async function authenticate(
 }
 
 // Google Login function
-export async function googleLogin(userData: {
-  email: string;
-  name: string;
-  googleId: string;
-}) {
+export async function googleLogin(userData: { idToken: string }) {
   try {
-    const response = await fetch(
-      `${process.env.EXTERNAL_API_URL}/google-auth`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      }
-    );
+    const response = await fetch(`${process.env.EXTERNAL_API_URL}/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(userData),
+    });
 
     if (!response.ok) {
       throw new Error(`Google login failed: ${response.statusText}`);

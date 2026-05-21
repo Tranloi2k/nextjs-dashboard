@@ -54,7 +54,11 @@ export default async function ListProductsComponent({
               className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
               <div className="relative">
-                <Link href={`/dashboard/products/${product.id}`}>
+                <Link
+                  href={`/products/${product.name.replace(/ /g, "-")}.${
+                    product.id
+                  }`}
+                >
                   <img
                     src={product.image}
                     alt={product.name}
@@ -81,7 +85,9 @@ export default async function ListProductsComponent({
               </div>
               <div className="p-4">
                 <Link
-                  href={`/dashboard/products/${product.id}`}
+                  href={`/products/${product.name.replace(/ /g, "-")}.${
+                    product.id
+                  }`}
                   className="block"
                 >
                   <h3 className="text-lg font-medium text-gray-900 mb-1 hover:text-indigo-600">
@@ -144,7 +150,11 @@ export default async function ListProductsComponent({
             >
               <div className="flex flex-col md:flex-row">
                 <div className="md:w-1/4 relative">
-                  <Link href={`/dashboard/products/${product.id}`}>
+                  <Link
+                    href={`/products/${product.name.replace(/ /g, "-")}.${
+                      product.id
+                    }`}
+                  >
                     <img
                       src={product.image}
                       alt={product.name}
@@ -173,7 +183,9 @@ export default async function ListProductsComponent({
                   <div className="flex flex-col h-full justify-between">
                     <div>
                       <Link
-                        href={`/dashboard/products/${product.id}`}
+                        href={`/products/${product.name.replace(/ /g, "-")}.${
+                          product.id
+                        }`}
                         className="block"
                       >
                         <h3 className="text-xl font-medium text-gray-900 mb-1 hover:text-indigo-600">

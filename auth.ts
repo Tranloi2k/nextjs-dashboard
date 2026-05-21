@@ -104,9 +104,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       ) {
         try {
           const response = await googleAuthAction({
-            email: user.email,
-            name: user.name,
-            googleId: user.id,
+            idToken: account.id_token!,
           });
 
           // Set cookies for Google login
