@@ -19,6 +19,12 @@ import ShopLogo from "@/app/ui/shop/logo";
 import clsx from "clsx";
 import Image from "next/image";
 
+function getStoredCartCount(): number {
+  if (typeof window === "undefined") return 0;
+  const stored = localStorage.getItem("cartItemsCount");
+  return stored ? parseInt(stored, 10) : 0;
+}
+
 const navLinks = [
   { name: "Shop", href: "/products" },
   { name: "Smartphones", href: "/products" },
@@ -29,7 +35,7 @@ const navLinks = [
 export default function ShopNavbar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [cartItemsCount, setCartItemsCount] = useState(getStoredCartCount);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -37,17 +43,11 @@ export default function ShopNavbar() {
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
-    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const cartCountFromStorage = localStorage.getItem("cartItemsCount");
-    if (cartCountFromStorage) {
-      setCartItemsCount(parseInt(cartCountFromStorage));
-    }
-
     const fetchData = async () => {
       try {
         const [cartResponse, userResponse] = await Promise.all([
@@ -65,10 +65,6 @@ export default function ShopNavbar() {
 
     fetchData();
   }, []);
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -243,6 +239,7 @@ export default function ShopNavbar() {
               <Link
                 key={link.name}
                 href={link.href}
+                onClick={() => setMobileOpen(false)}
                 className="block py-2.5 text-sm font-medium text-shop-secondary transition-colors hover:text-shop-text"
               >
                 {link.name}

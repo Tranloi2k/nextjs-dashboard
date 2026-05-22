@@ -1,4 +1,4 @@
-import type { NextAuthConfig, Session } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import {
   ACCESS_EXPIRES_COOKIE,
   isAccessTokenExpired,

@@ -12,20 +12,20 @@ import { getCart } from "@/app/lib/services/cart";
 import { getUser } from "@/app/lib/services/user";
 import Image from "next/image";
 
+function getStoredCartCount(): number {
+  if (typeof window === "undefined") return 0;
+  const stored = localStorage.getItem("cartItemsCount");
+  return stored ? parseInt(stored, 10) : 0;
+}
+
 export default function Header() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [cartItemsCount, setCartItemsCount] = useState(getStoredCartCount);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [userInfo, setUserInfo] = useState<ApiUserInfo | null>(null);
 
   useEffect(() => {
-    // Fetch cart items count from API
-    const cartCountFromStorage = localStorage.getItem("cartItemsCount");
-    if (cartCountFromStorage) {
-      setCartItemsCount(parseInt(cartCountFromStorage));
-    }
-
     const fetchData = async () => {
       try {
         const [cartResponse, userResponse] = await Promise.all([

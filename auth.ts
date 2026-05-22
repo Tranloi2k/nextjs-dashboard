@@ -95,7 +95,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // Handle Google OAuth sign in
       if (
         account?.provider === "google" &&
@@ -167,7 +167,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
     },
   },
   events: {
-    async signOut(event) {
+    async signOut() {
       console.log("🔒 Signing out user...");
 
       try {
