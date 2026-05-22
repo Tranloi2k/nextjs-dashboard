@@ -260,7 +260,7 @@ export async function FeaturedProducts() {
   let products: ProductListItem[] = [];
 
   try {
-    products = await getProducts("", 1);
+    products = await getProducts("", 1, { authenticated: false });
   } catch {
     products = [];
   }

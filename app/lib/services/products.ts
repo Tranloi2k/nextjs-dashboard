@@ -5,20 +5,30 @@ import { unauthorized } from "next/navigation";
 
 const productsPerPage = 8;
 
-export async function getProducts(query: string, page: number = 1) {
+export async function getProducts(
+  query: string,
+  page: number = 1,
+  options?: { authenticated?: boolean },
+) {
   const apiUrl = process.env.NEXT_PUBLIC_EXTERNAL_API_URL;
   if (!apiUrl) {
     console.error("NEXT_PUBLIC_EXTERNAL_API_URL is not configured");
     return [];
   }
 
+  const authenticated = options?.authenticated ?? true;
+  const url =
+    `${apiUrl}/products?` +
+    (query ? `search=${query}&` : "") +
+    `page=${page}&limit=${productsPerPage}`;
+
   try {
-    const res = await authFetch(
-      `${apiUrl}/products?` +
-        (query ? `search=${query}&` : "") +
-        `page=${page}&limit=${productsPerPage}`,
-      { method: "GET" },
-    );
+    const res = authenticated
+      ? await authFetch(url, { method: "GET" })
+      : await fetch(url, {
+          method: "GET",
+          next: { revalidate: 60 },
+        });
 
     if (res.status === 401) {
       unauthorized();

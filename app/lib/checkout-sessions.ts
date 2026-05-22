@@ -1,9 +1,20 @@
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
-
 const CURRENCY = "usd";
+
+let stripeClient: Stripe | null = null;
+
+function getStripe(): Stripe {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("STRIPE_SECRET_KEY is not configured");
+  }
+  if (!stripeClient) {
+    stripeClient = new Stripe(secretKey);
+  }
+  return stripeClient;
+}
 
 // Helper function to format amount for Stripe (convert to cents)
 function formatAmountForStripe(amount: number, currency: string): number {
@@ -87,7 +98,7 @@ export async function createProductCheckoutSession(
       billing_address_collection: "required",
     };
 
-    const checkoutSession = await stripe.checkout.sessions.create(params);
+    const checkoutSession = await getStripe().checkout.sessions.create(params);
     return checkoutSession;
   } catch (error) {
     console.error("Error creating product checkout session:", error);
@@ -136,7 +147,7 @@ export async function createCartCheckoutSession(
       },
     };
 
-    const checkoutSession = await stripe.checkout.sessions.create(params);
+    const checkoutSession = await getStripe().checkout.sessions.create(params);
     return checkoutSession;
   } catch (error) {
     console.error("Error creating cart checkout session:", error);
@@ -149,7 +160,7 @@ export async function retrieveCheckoutSession(
   sessionId: string
 ): Promise<Stripe.Checkout.Session> {
   try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+    const session = await getStripe().checkout.sessions.retrieve(sessionId, {
       expand: ["line_items", "customer"],
     });
     return session;
@@ -174,10 +185,18 @@ export async function handleStripeWebhook(
   }
 
   try {
-    const event = stripe.webhooks.constructEvent(
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      return NextResponse.json(
+        { error: "STRIPE_WEBHOOK_SECRET is not configured" },
+        { status: 500 },
+      );
+    }
+
+    const event = getStripe().webhooks.constructEvent(
       body,
       signature,
-      process.env.STRIPE_WEBHOOK_SECRET!
+      webhookSecret,
     );
 
     switch (event.type) {
@@ -284,7 +303,7 @@ export async function createStripeCustomer(
   metadata?: Record<string, string>
 ): Promise<Stripe.Customer> {
   try {
-    const customer = await stripe.customers.create({
+    const customer = await getStripe().customers.create({
       email,
       name,
       metadata,
