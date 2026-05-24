@@ -24,24 +24,17 @@ function getNextCacheExtensions(): NextCacheExtensions {
   }
 }
 
-/** Invalidate a tagged Data Cache entry (Next 15 single-arg / Next 16 profile API). */
+/** Invalidate a tagged Data Cache entry (Next 16 `updateTag` / `revalidateTag` + profile). */
 function invalidateDataCacheTag(tag: string, source: RevalidateSource): void {
   const { updateTag } = getNextCacheExtensions();
+  const profile = source === "handler" ? { expire: 0 } : "max";
 
   if (source === "action" && updateTag) {
     updateTag(tag);
     return;
   }
 
-  if (updateTag) {
-    revalidateTagCompat(
-      tag,
-      source === "handler" ? { expire: 0 } : "max",
-    );
-    return;
-  }
-
-  revalidateTag(tag);
+  revalidateTagCompat(tag, profile);
 }
 
 function softRefreshCurrentRoute(): void {
