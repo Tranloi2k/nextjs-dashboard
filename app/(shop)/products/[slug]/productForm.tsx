@@ -5,6 +5,7 @@ import type { ProductFormProduct } from "@/app/lib/definitions";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
 import { ShopButton } from "@/app/ui/shop/button";
 import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { useState } from "react";
 import clsx from "clsx";
 
@@ -20,6 +21,7 @@ export default function ProductForm({
   const [quantity, setQuantity] = useState(1);
   const [isAdding, setIsAdding] = useState(false);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
+  const { requireAuth, isAuthLoading } = useRequireAuth();
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("en-US", {
@@ -28,6 +30,10 @@ export default function ProductForm({
     }).format(price);
 
   const handleAddToCart = async () => {
+    if (!requireAuth()) {
+      return;
+    }
+
     setIsAdding(true);
     setCartMessage(null);
 
@@ -146,7 +152,7 @@ export default function ProductForm({
             variant="outline"
             size="lg"
             className="w-full"
-            disabled={isAdding}
+            disabled={isAdding || isAuthLoading}
             onClick={handleAddToCart}
           >
             {isAdding ? (
