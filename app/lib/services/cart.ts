@@ -39,7 +39,7 @@ async function fetchCartResponse(): Promise<Response> {
   const cookie = await cookies();
   const userId = cookie.get("user_id")?.value ?? "";
 
-  const tags = [CACHE_TAGS.cart];
+  const tags: string[] = [CACHE_TAGS.cart];
   if (userId) {
     tags.push(CACHE_TAGS.cartUser(userId));
   }
@@ -84,8 +84,7 @@ export async function getCart() {
 export async function addToCart(
   productId: string,
   quantity: number,
-  _color: string,
-  _storage: string,
+  options?: { color?: string; storage?: string },
 ): Promise<CartSummary> {
   const apiUrl = await getApiUrl();
 
@@ -95,6 +94,8 @@ export async function addToCart(
     body: JSON.stringify({
       productId: Number(productId),
       quantity,
+      ...(options?.color ? { color: options.color } : {}),
+      ...(options?.storage ? { storage: options.storage } : {}),
     }),
   });
 

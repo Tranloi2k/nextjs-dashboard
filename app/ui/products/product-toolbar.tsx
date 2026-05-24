@@ -14,7 +14,7 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function ProductToolbar() {
   const router = useRouter();
@@ -29,11 +29,18 @@ export default function ProductToolbar() {
   const activeSort = searchParams.get("sort") || "popular";
   const activeView = (searchParams.get("view") || "grid") as ProductView;
 
-  useEffect(() => {
+  const syncDraftsFromUrl = () => {
     setDraftMin(searchParams.get("minPrice") || "");
     setDraftMax(searchParams.get("maxPrice") || "");
     setDraftOnSale(searchParams.get("onSale") === "true");
-  }, [searchParams]);
+  };
+
+  const toggleFilters = () => {
+    if (!filtersOpen) {
+      syncDraftsFromUrl();
+    }
+    setFiltersOpen((open) => !open);
+  };
 
   const pushParams = (
     updates: Record<string, string | number | boolean | null | undefined>,
@@ -99,7 +106,7 @@ export default function ProductToolbar() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={() => setFiltersOpen(!filtersOpen)}
+            onClick={toggleFilters}
             className={clsx(
               "inline-flex items-center gap-2 rounded-shop border px-4 py-2 text-sm font-medium transition-colors",
               filtersOpen || hasActiveFilters

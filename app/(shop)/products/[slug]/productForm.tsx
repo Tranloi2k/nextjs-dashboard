@@ -32,12 +32,10 @@ export default function ProductForm({
     setCartMessage(null);
 
     try {
-      const summary = await addToCart(
-        product.id,
-        quantity,
-        selectedColor,
-        selectedStorage,
-      );
+      const summary = await addToCart(product.id, quantity, {
+        color: selectedColor,
+        storage: selectedStorage,
+      });
       syncCartBadge(summary.cart?.quantity ?? 0);
       setCartMessage("Added to your bag");
     } catch {

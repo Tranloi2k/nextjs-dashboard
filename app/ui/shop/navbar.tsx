@@ -30,12 +30,20 @@ const navLinks = [
   { name: "Wearables", category: "wearables" },
 ] as const;
 
+function readStoredCartCount(): number {
+  if (typeof window === "undefined") return 0;
+  const stored = localStorage.getItem("cartItemsCount");
+  if (!stored) return 0;
+  const parsed = Number.parseInt(stored, 10);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
 export default function ShopNavbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") || "";
   const { data: session } = useSession();
-  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [cartItemsCount, setCartItemsCount] = useState(readStoredCartCount);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -48,10 +56,7 @@ export default function ShopNavbar() {
   }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem("cartItemsCount");
-    if (stored) {
-      setCartItemsCount(parseInt(stored, 10));
-    }
+    let cancelled = false;
 
     const fetchData = async () => {
       try {
@@ -59,16 +64,22 @@ export default function ShopNavbar() {
           getCart(),
           getUser(),
         ]);
+        if (cancelled) return;
         setUserInfo(userResponse);
         const cartQuantity = cartResponse?.quantity || 0;
         localStorage.setItem("cartItemsCount", cartQuantity.toString());
         setCartItemsCount(cartQuantity);
       } catch {
-        setCartItemsCount(0);
+        if (!cancelled) {
+          setCartItemsCount(0);
+        }
       }
     };
 
-    fetchData();
+    void fetchData();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {

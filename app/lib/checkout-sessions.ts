@@ -256,15 +256,19 @@ async function handleSuccessfulPayment(session: Stripe.Checkout.Session) {
       // Handle cart order
       console.log("📦 Processing cart order");
       // await updateCartOrderStatus(session.id, 'paid');
-      revalidateAfterCartChange({ refreshRoute: false });
+      revalidateAfterCartChange({ refreshRoute: false, source: "handler" });
     } else if (product_id) {
       // Handle single product order
       console.log(`📱 Processing product order: ${product_id} x ${quantity}`);
       // await updateProductOrderStatus(product_id, session.id, 'paid');
-      revalidateAfterCartChange({ productId: product_id, refreshRoute: false });
+      revalidateAfterCartChange({
+        productId: product_id,
+        refreshRoute: false,
+        source: "handler",
+      });
     }
 
-    revalidateProductsCatalog({ refreshRoute: false });
+    revalidateProductsCatalog({ refreshRoute: false, source: "handler" });
 
     // Send confirmation email
     if (session.customer_email) {

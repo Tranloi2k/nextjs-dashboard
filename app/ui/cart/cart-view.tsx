@@ -45,7 +45,6 @@ export default function CartView({
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setSummary(initialSummary);
     syncCartBadge(initialSummary.cart?.quantity ?? 0);
   }, [initialSummary]);
 

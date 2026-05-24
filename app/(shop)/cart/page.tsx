@@ -40,7 +40,10 @@ export default async function CartPage() {
         </p>
       </div>
 
-      <CartView initialSummary={summary} />
+      <CartView
+        key={`${summary.cart?.id ?? "empty"}-${summary.totalItems}-${summary.finalPrice}`}
+        initialSummary={summary}
+      />
     </div>
   );
 }

@@ -1,39 +1,94 @@
-import { revalidatePath, revalidateTag, refresh } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { CACHE_TAGS } from "@/app/lib/cache-tags";
+
+export type RevalidateSource = "action" | "handler";
+
+type RevalidateTagWithProfile = (
+  tag: string,
+  profile?: "max" | { expire?: number },
+) => void;
+
+type NextCacheExtensions = {
+  updateTag?: (tag: string) => void;
+  refresh?: () => void;
+};
+
+const revalidateTagCompat = revalidateTag as RevalidateTagWithProfile;
+
+function getNextCacheExtensions(): NextCacheExtensions {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- runtime feature detect (Next 15 vs 16)
+    return require("next/cache") as NextCacheExtensions;
+  } catch {
+    return {};
+  }
+}
+
+/** Invalidate a tagged Data Cache entry (Next 15 single-arg / Next 16 profile API). */
+function invalidateDataCacheTag(tag: string, source: RevalidateSource): void {
+  const { updateTag } = getNextCacheExtensions();
+
+  if (source === "action" && updateTag) {
+    updateTag(tag);
+    return;
+  }
+
+  if (updateTag) {
+    revalidateTagCompat(
+      tag,
+      source === "handler" ? { expire: 0 } : "max",
+    );
+    return;
+  }
+
+  revalidateTag(tag);
+}
+
+function softRefreshCurrentRoute(): void {
+  const { refresh } = getNextCacheExtensions();
+  refresh?.();
+}
 
 export type RevalidateAfterCartOptions = {
   userId?: string;
   productId?: string | number;
   /**
-   * Soft-refresh the current route's Server Components (Next.js `refresh()`).
+   * Soft-refresh the current route's Server Components (`refresh()` when available).
    * @default true
    */
   refreshRoute?: boolean;
+  /**
+   * `action` — Server Action (`updateTag` on Next 16).
+   * `handler` — Route Handler / webhook (`revalidateTag` with immediate expire).
+   * @default "action"
+   */
+  source?: RevalidateSource;
 };
 
 /**
  * Invalidate caches and routes after cart mutations.
- * Combines `revalidateTag`, `revalidatePath`, and `refresh()` per Next.js guidance:
- * - tags → shared Data Cache entries (e.g. public catalog)
- * - paths → layout/page RSC payloads
- * - refresh → current route tree without a full navigation
  */
 export function revalidateAfterCartChange(
   options: RevalidateAfterCartOptions = {},
 ): void {
-  const { userId, productId, refreshRoute = true } = options;
+  const {
+    userId,
+    productId,
+    refreshRoute = true,
+    source = "action",
+  } = options;
 
-  revalidateTag(CACHE_TAGS.cart);
-  revalidateTag(CACHE_TAGS.products);
-  revalidateTag(CACHE_TAGS.catalog);
+  invalidateDataCacheTag(CACHE_TAGS.cart, source);
+  invalidateDataCacheTag(CACHE_TAGS.products, source);
+  invalidateDataCacheTag(CACHE_TAGS.catalog, source);
 
   if (userId) {
-    revalidateTag(CACHE_TAGS.cartUser(userId));
-    revalidateTag(CACHE_TAGS.userId(userId));
+    invalidateDataCacheTag(CACHE_TAGS.cartUser(userId), source);
+    invalidateDataCacheTag(CACHE_TAGS.userId(userId), source);
   }
 
   if (productId !== undefined && productId !== "") {
-    revalidateTag(CACHE_TAGS.product(productId));
+    invalidateDataCacheTag(CACHE_TAGS.product(productId), source);
   }
 
   revalidatePath("/cart");
@@ -41,30 +96,29 @@ export function revalidateAfterCartChange(
   revalidatePath("/", "layout");
 
   if (refreshRoute) {
-    refresh();
+    softRefreshCurrentRoute();
   }
 }
 
 /** Invalidate product catalog caches (e.g. after admin/product webhook). */
 export function revalidateProductsCatalog(options?: {
   refreshRoute?: boolean;
+  source?: RevalidateSource;
 }): void {
-  revalidateTag(CACHE_TAGS.products);
-  revalidateTag(CACHE_TAGS.catalog);
+  const source = options?.source ?? "action";
+
+  invalidateDataCacheTag(CACHE_TAGS.products, source);
+  invalidateDataCacheTag(CACHE_TAGS.catalog, source);
 
   revalidatePath("/products", "layout");
   revalidatePath("/", "layout");
 
   if (options?.refreshRoute !== false) {
-    refresh();
+    softRefreshCurrentRoute();
   }
 }
 
-/**
- * Soft-refresh Server Components on the active route.
- * Use from Server Actions when the client already has mutation result
- * but parent RSC (e.g. layout) should re-fetch.
- */
+/** Soft-refresh Server Components on the active route when supported. */
 export function refreshShopRoute(): void {
-  refresh();
+  softRefreshCurrentRoute();
 }
