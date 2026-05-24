@@ -45,7 +45,7 @@ export default function ListProductsComponent({
   if (viewMode === "grid") {
     return (
       <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4 xl:gap-6">
-        {products.map((product) => (
+        {products.map((product, index) => (
           <article
             key={product.id}
             className="group shop-card-interactive flex flex-col overflow-hidden"
@@ -56,6 +56,7 @@ export default function ListProductsComponent({
                   src={product.image}
                   alt={product.name}
                   fill
+                  priority={index === 0}
                   className="object-contain p-6 transition-transform duration-500 ease-shop group-hover:scale-[1.03]"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 />
@@ -130,7 +131,7 @@ export default function ListProductsComponent({
 
   return (
     <div className="mt-8 space-y-4">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <article
           key={product.id}
           className="group shop-card-interactive overflow-hidden"
@@ -142,6 +143,7 @@ export default function ListProductsComponent({
                   src={product.image}
                   alt={product.name}
                   fill
+                  priority={index === 0}
                   className="object-contain p-6"
                   sizes="(max-width: 640px) 100vw, 224px"
                 />
