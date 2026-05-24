@@ -10,10 +10,10 @@ import {
   XMarkIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useSession, signOut } from "next-auth/react";
 import type { ApiUserInfo } from "@/app/lib/definitions";
-import { CART_UPDATED_EVENT } from "@/app/lib/cart-events";
+import { CART_UPDATED_EVENT, syncCartBadge } from "@/app/lib/cart-events";
 import { getCart } from "@/app/lib/services/cart";
 import { getUser } from "@/app/lib/services/user";
 import ShopLogo from "@/app/ui/shop/logo";
@@ -38,13 +38,30 @@ function readStoredCartCount(): number {
   return Number.isNaN(parsed) ? 0 : parsed;
 }
 
+function subscribeCartCount(onStoreChange: () => void) {
+  const onUpdate = () => onStoreChange();
+  window.addEventListener(CART_UPDATED_EVENT, onUpdate);
+  return () => window.removeEventListener(CART_UPDATED_EVENT, onUpdate);
+}
+
+function getCartCountSnapshot() {
+  return readStoredCartCount();
+}
+
+function getCartCountServerSnapshot() {
+  return 0;
+}
+
 export default function ShopNavbar() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") || "";
   const { data: session } = useSession();
-  const [cartItemsCount, setCartItemsCount] = useState(0);
-  const [cartCountReady, setCartCountReady] = useState(false);
+  const cartItemsCount = useSyncExternalStore(
+    subscribeCartCount,
+    getCartCountSnapshot,
+    getCartCountServerSnapshot,
+  );
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -57,9 +74,6 @@ export default function ShopNavbar() {
   }, []);
 
   useEffect(() => {
-    setCartItemsCount(readStoredCartCount());
-    setCartCountReady(true);
-
     let cancelled = false;
 
     const fetchData = async () => {
@@ -70,12 +84,10 @@ export default function ShopNavbar() {
         ]);
         if (cancelled) return;
         setUserInfo(userResponse);
-        const cartQuantity = cartResponse?.quantity || 0;
-        localStorage.setItem("cartItemsCount", cartQuantity.toString());
-        setCartItemsCount(cartQuantity);
+        syncCartBadge(cartResponse?.quantity ?? 0);
       } catch {
         if (!cancelled) {
-          setCartItemsCount(0);
+          syncCartBadge(0);
         }
       }
     };
@@ -84,16 +96,6 @@ export default function ShopNavbar() {
     return () => {
       cancelled = true;
     };
-  }, []);
-
-  useEffect(() => {
-    const onCartUpdated = (event: Event) => {
-      const detail = (event as CustomEvent<{ count: number }>).detail;
-      setCartItemsCount(detail.count);
-    };
-
-    window.addEventListener(CART_UPDATED_EVENT, onCartUpdated);
-    return () => window.removeEventListener(CART_UPDATED_EVENT, onCartUpdated);
   }, []);
 
   useEffect(() => {
@@ -190,14 +192,10 @@ export default function ShopNavbar() {
             <Link
               href="/cart"
               className="relative rounded-shop p-2.5 text-shop-secondary transition-colors hover:bg-shop-surface-muted hover:text-shop-text"
-              aria-label={
-                cartCountReady
-                  ? `Cart, ${cartItemsCount} items`
-                  : "Cart"
-              }
+              aria-label={`Cart, ${cartItemsCount} items`}
             >
               <ShoppingBagIcon className="h-5 w-5" strokeWidth={1.5} />
-              {cartCountReady && cartItemsCount > 0 && (
+              {cartItemsCount > 0 && (
                 <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-shop-text px-1 text-[10px] font-semibold text-white">
                   {cartItemsCount > 99 ? "99+" : cartItemsCount}
                 </span>
