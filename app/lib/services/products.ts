@@ -2,20 +2,27 @@
 import { authFetch } from "@/app/lib/api-client";
 import { CACHE_TAGS } from "@/app/lib/cache-tags";
 import type { ProductListItem } from "@/app/lib/definitions";
+import { productSlug } from "@/app/lib/seo";
 import { isNextNavigationError } from "@/app/lib/utils";
 import { unauthorized } from "next/navigation";
 
 const productsPerPage = 8;
+/** Page size when prebuilding product URLs at build time (sitemap, generateStaticParams). */
+const staticBuildPageSize = 50;
+const staticBuildMaxPages = 100;
 
 export type ProductsQuery = {
   query?: string;
   page?: number;
+  limit?: number;
   category?: string;
   sort?: string;
   minPrice?: number;
   maxPrice?: number;
   onSale?: boolean;
 };
+
+export type ProductSlugParam = { slug: string };
 
 export type ProductsPageResult = {
   products: ProductListItem[];
@@ -63,7 +70,7 @@ export async function getProducts(
   if (maxPrice !== undefined) params.set("maxPrice", String(maxPrice));
   if (onSale) params.set("onSale", "true");
   params.set("page", String(page));
-  params.set("limit", String(productsPerPage));
+  params.set("limit", String(filters.limit ?? productsPerPage));
 
   const url = `${apiUrl}/products?${params.toString()}`;
   const authenticated = options?.authenticated ?? true;
@@ -156,4 +163,37 @@ export async function getProductById(
 
   const data = await res.json();
   return data;
+}
+
+/**
+ * All product slugs for `generateStaticParams` and sitemap.
+ * Uses public catalog fetch (no auth). Returns [] if API is unavailable at build time.
+ */
+export async function getAllProductSlugParams(): Promise<ProductSlugParam[]> {
+  const params: ProductSlugParam[] = [];
+  let page = 1;
+  let hasNext = true;
+
+  try {
+    while (hasNext && page <= staticBuildMaxPages) {
+      const result = await getProducts(
+        { page, limit: staticBuildPageSize },
+        { authenticated: false },
+      );
+
+      for (const product of result.products) {
+        params.push({ slug: productSlug(product.name, product.id) });
+      }
+
+      hasNext = result.hasNextPage;
+      page += 1;
+    }
+  } catch (error) {
+    if (isNextNavigationError(error)) {
+      throw error;
+    }
+    console.error("getAllProductSlugParams:", error);
+  }
+
+  return params;
 }

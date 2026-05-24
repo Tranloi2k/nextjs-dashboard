@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
-import { getProducts } from "@/app/lib/services/products";
-import { absoluteUrl, getSiteUrl, productPath } from "@/app/lib/seo";
+import { getAllProductSlugParams } from "@/app/lib/services/products";
+import { absoluteUrl, getSiteUrl } from "@/app/lib/seo";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = getSiteUrl();
@@ -21,24 +21,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  const productRoutes: MetadataRoute.Sitemap = [];
-  let page = 1;
-  let hasNext = true;
-
-  while (hasNext) {
-    const result = await getProducts({ page }, { authenticated: false });
-    for (const product of result.products) {
-      productRoutes.push({
-        url: absoluteUrl(productPath(product)),
-        lastModified: now,
-        changeFrequency: "weekly",
-        priority: 0.8,
-      });
-    }
-    hasNext = result.hasNextPage;
-    page += 1;
-    if (page > 500) break;
-  }
+  const slugParams = await getAllProductSlugParams();
+  const productRoutes: MetadataRoute.Sitemap = slugParams.map(({ slug }) => ({
+    url: absoluteUrl(`/products/${slug}`),
+    lastModified: now,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
 
   return [...staticRoutes, ...productRoutes];
 }
