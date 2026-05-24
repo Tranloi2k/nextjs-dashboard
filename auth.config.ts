@@ -40,8 +40,8 @@ export const authConfig = {
         isLoggedIn &&
         ((hasAccessToken && !accessExpired) || hasRefreshToken);
       const isProtectedRoute =
-        nextUrl.pathname.startsWith("/products") ||
-        nextUrl.pathname.startsWith("/customers");
+        nextUrl.pathname.startsWith("/customers") ||
+        nextUrl.pathname.startsWith("/cart");
 
       if (isProtectedRoute) {
         if (hasValidSession) {

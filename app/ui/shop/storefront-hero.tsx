@@ -1,3 +1,4 @@
+import { categoryNavHref } from "@/app/lib/product-filters";
 import { ShopButton } from "@/app/ui/shop/button";
 import { getProducts } from "@/app/lib/services/products";
 import type { ProductListItem } from "@/app/lib/definitions";
@@ -199,19 +200,19 @@ export function CategoryTiles() {
     {
       name: "Smartphones",
       description: "Flagship performance",
-      href: "/products",
+      href: categoryNavHref("smartphones"),
       accent: "from-stone-100 to-stone-50",
     },
     {
       name: "Tablets",
       description: "Work and create",
-      href: "/products",
+      href: categoryNavHref("tablets"),
       accent: "from-neutral-100 to-neutral-50",
     },
     {
       name: "Wearables",
       description: "Track every moment",
-      href: "/products",
+      href: categoryNavHref("wearables"),
       accent: "from-zinc-100 to-zinc-50",
     },
   ];
@@ -260,7 +261,11 @@ export async function FeaturedProducts() {
   let products: ProductListItem[] = [];
 
   try {
-    products = await getProducts("", 1, { authenticated: false });
+    const result = await getProducts(
+      { page: 1, sort: "popular" },
+      { authenticated: false },
+    );
+    products = result.products;
   } catch {
     products = [];
   }

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { retrieveCheckoutSession } from "@/app/lib/checkout-sessions";
 import { ShopButton } from "@/app/ui/shop/button";
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-no-store";
 
 export default async function CheckoutSuccess({
   searchParams,

@@ -1,16 +1,15 @@
 import "@/app/ui/global.css";
 import { inter, outfit } from "@/app/ui/fonts";
-import { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Providers from "@/app/providers";
+import { rootMetadata } from "@/app/lib/seo";
 
-export const metadata: Metadata = {
-  title: {
-    template: "%s | NOVA",
-    default: "NOVA — Premium Tech Store",
-  },
-  description:
-    "Discover premium smartphones, tablets, and wearables. Secure checkout and fast delivery.",
-  metadataBase: new URL("https://next-learn-dashboard.vercel.sh"),
+export const metadata: Metadata = rootMetadata;
+
+export const viewport: Viewport = {
+  themeColor: "#0a0a0a",
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({

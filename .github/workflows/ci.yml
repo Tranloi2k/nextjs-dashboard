@@ -12,6 +12,9 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    env:
+      # Required for static SEO routes (sitemap, manifest, metadata) at build time
+      NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
 
     steps:
       - name: Checkout code

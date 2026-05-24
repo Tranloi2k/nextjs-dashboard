@@ -1,6 +1,7 @@
 "use server";
 
 import { signIn } from "@/auth";
+import { refreshShopRoute } from "@/app/lib/revalidate-shop";
 import { AuthError } from "next-auth";
 
 export async function authenticate(
@@ -50,4 +51,12 @@ export async function googleLogin(userData: { idToken: string }) {
     console.error("Google login error:", error);
     throw error;
   }
+}
+
+/**
+ * Soft-refresh Server Components on the current route (`refresh()` from `next/cache`).
+ * Callable from Client Components after operations that don't return full RSC payload.
+ */
+export async function refreshShopData() {
+  refreshShopRoute();
 }
