@@ -25,9 +25,26 @@ function originFromEnvValue(raw: string | undefined): string | undefined {
 }
 
 function originFromVercel(): string | undefined {
+  const productionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL?.trim();
+  if (productionUrl) {
+    const normalized = productionUrl.startsWith("http")
+      ? productionUrl
+      : `https://${productionUrl}`;
+    const origin = originFromEnvValue(normalized);
+    if (origin) return origin;
+  }
+
   const host = process.env.VERCEL_URL?.trim();
   if (!host) return undefined;
   return originFromEnvValue(`https://${host}`);
+}
+
+/** `next build` / GitHub Actions often run without a public URL env yet. */
+function isBuildWithoutPublicUrl(): boolean {
+  return (
+    process.env.CI === "true" ||
+    process.env.NEXT_PHASE === "phase-production-build"
+  );
 }
 
 function originForDevelopment(): string {
@@ -37,8 +54,8 @@ function originForDevelopment(): string {
 
 /**
  * Canonical site origin.
- * Production: `NEXT_PUBLIC_APP_URL` (required) or `VERCEL_URL` / `NEXTAUTH_URL`.
- * Development: falls back to `http://127.0.0.1:$PORT` when env is unset.
+ * Production runtime: set `NEXT_PUBLIC_APP_URL` (or deploy on Vercel for auto `VERCEL_URL`).
+ * Development / CI build: falls back to `http://127.0.0.1:$PORT` when unset.
  */
 export function getSiteUrl(): string {
   for (const key of SITE_URL_ENV_KEYS) {
@@ -49,7 +66,7 @@ export function getSiteUrl(): string {
   const vercelOrigin = originFromVercel();
   if (vercelOrigin) return vercelOrigin;
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development" || isBuildWithoutPublicUrl()) {
     return originForDevelopment();
   }
 
