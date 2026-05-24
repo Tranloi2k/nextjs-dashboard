@@ -1,15 +1,18 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export default function GoogleLoginButton() {
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/products";
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/products" });
+      await signIn("google", { callbackUrl });
     } catch (error) {
       console.error("Google login error:", error);
     } finally {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 import { useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
@@ -20,8 +21,13 @@ export default function BuyNowButton({
   customerEmail,
 }: BuyNowButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { requireAuth, isAuthLoading } = useRequireAuth();
 
   const handleBuyNow = async () => {
+    if (!requireAuth()) {
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -38,6 +44,11 @@ export default function BuyNowButton({
           customerEmail,
         }),
       });
+
+      if (response.status === 401) {
+        requireAuth();
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("Failed to create checkout session");
@@ -58,7 +69,7 @@ export default function BuyNowButton({
   return (
     <button
       onClick={handleBuyNow}
-      disabled={isLoading}
+      disabled={isLoading || isAuthLoading}
       className={clsx(
         "inline-flex h-12 w-full items-center justify-center gap-2 rounded-shop text-sm font-medium tracking-wide transition-all duration-shop ease-shop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-shop-text focus-visible:ring-offset-2",
         isLoading

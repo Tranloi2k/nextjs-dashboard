@@ -43,7 +43,8 @@ export default function ShopNavbar() {
   const searchParams = useSearchParams();
   const activeCategory = searchParams.get("category") || "";
   const { data: session } = useSession();
-  const [cartItemsCount, setCartItemsCount] = useState(readStoredCartCount);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [cartCountReady, setCartCountReady] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -56,6 +57,9 @@ export default function ShopNavbar() {
   }, []);
 
   useEffect(() => {
+    setCartItemsCount(readStoredCartCount());
+    setCartCountReady(true);
+
     let cancelled = false;
 
     const fetchData = async () => {
@@ -186,10 +190,14 @@ export default function ShopNavbar() {
             <Link
               href="/cart"
               className="relative rounded-shop p-2.5 text-shop-secondary transition-colors hover:bg-shop-surface-muted hover:text-shop-text"
-              aria-label={`Cart, ${cartItemsCount} items`}
+              aria-label={
+                cartCountReady
+                  ? `Cart, ${cartItemsCount} items`
+                  : "Cart"
+              }
             >
               <ShoppingBagIcon className="h-5 w-5" strokeWidth={1.5} />
-              {cartItemsCount > 0 && (
+              {cartCountReady && cartItemsCount > 0 && (
                 <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-shop-text px-1 text-[10px] font-semibold text-white">
                   {cartItemsCount > 99 ? "99+" : cartItemsCount}
                 </span>
