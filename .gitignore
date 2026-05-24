@@ -34,3 +34,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Cursor IDE
+.cursor/
+.cursor/plans/
+.cursor/projects/
+*.cursor-plan.md
+
+# CodeGraph local index (regenerate with `codegraph init -i`)
+.codegraph/
