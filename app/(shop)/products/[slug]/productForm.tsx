@@ -1,4 +1,5 @@
 "use client";
+import { syncCartBadge } from "@/app/lib/cart-events";
 import { addToCart } from "@/app/lib/services/cart";
 import type { ProductFormProduct } from "@/app/lib/definitions";
 import BuyNowButton from "@/app/ui/products/BuyNowButton";
@@ -17,6 +18,8 @@ export default function ProductForm({
     product.storageOptions[0] || "",
   );
   const [quantity, setQuantity] = useState(1);
+  const [isAdding, setIsAdding] = useState(false);
+  const [cartMessage, setCartMessage] = useState<string | null>(null);
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("en-US", {
@@ -25,13 +28,23 @@ export default function ProductForm({
     }).format(price);
 
   const handleAddToCart = async () => {
-    const cartQuantity = localStorage.getItem("cartItemsCount");
-    localStorage.setItem(
-      "cartItemsCount",
-      (parseInt(cartQuantity || "0") + quantity).toString(),
-    );
+    setIsAdding(true);
+    setCartMessage(null);
 
-    await addToCart(product.id, quantity, selectedColor, selectedStorage);
+    try {
+      const summary = await addToCart(
+        product.id,
+        quantity,
+        selectedColor,
+        selectedStorage,
+      );
+      syncCartBadge(summary.cart?.quantity ?? 0);
+      setCartMessage("Added to your bag");
+    } catch {
+      setCartMessage("Could not add to bag. Please sign in and try again.");
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const optionClass = (selected: boolean) =>
@@ -115,16 +128,40 @@ export default function ProductForm({
           </span>
         </div>
 
+        {cartMessage && (
+          <p
+            className={clsx(
+              "mt-4 text-sm",
+              cartMessage.startsWith("Added")
+                ? "text-shop-text"
+                : "text-shop-error",
+            )}
+            role="status"
+          >
+            {cartMessage}
+          </p>
+        )}
+
         <div className="mt-6 grid gap-3 sm:grid-cols-2">
           <ShopButton
             type="button"
             variant="outline"
             size="lg"
             className="w-full"
+            disabled={isAdding}
             onClick={handleAddToCart}
           >
-            <ShoppingBagIcon className="h-5 w-5" strokeWidth={1.5} />
-            Add to bag
+            {isAdding ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-shop-text/30 border-t-shop-text" />
+                Adding...
+              </>
+            ) : (
+              <>
+                <ShoppingBagIcon className="h-5 w-5" strokeWidth={1.5} />
+                Add to bag
+              </>
+            )}
           </ShopButton>
           <BuyNowButton
             product={product}

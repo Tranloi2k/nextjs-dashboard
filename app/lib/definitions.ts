@@ -120,3 +120,35 @@ export type ApiUserInfo = {
   avatar?: string;
   image?: string;
 };
+
+export type CartProduct = {
+  id: number;
+  name: string;
+  image: string;
+  price: number;
+  discount: number;
+};
+
+export type CartItem = {
+  id: number;
+  cartId: number;
+  productId: number;
+  quantity: number;
+  price: number;
+  product: CartProduct;
+};
+
+export type Cart = {
+  id: number;
+  userId: number;
+  quantity: number;
+  items: CartItem[];
+};
+
+export type CartSummary = {
+  cart: Cart | null;
+  totalItems: number;
+  totalPrice: number;
+  totalDiscount: number;
+  finalPrice: number;
+};

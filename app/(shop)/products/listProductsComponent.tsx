@@ -1,19 +1,18 @@
-import { getProducts } from "@/app/lib/services/products";
 import type { ProductListItem } from "@/app/lib/definitions";
+import type { ProductView } from "@/app/lib/product-filters";
+import { productPath } from "@/app/lib/seo";
 import { StarIcon, ShoppingBagIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
 import Image from "next/image";
 
-export default async function ListProductsComponent({
-  query,
-  currentPage,
+export default function ListProductsComponent({
+  products,
+  viewMode,
 }: {
-  query: string;
-  currentPage: number;
+  products: ProductListItem[];
+  viewMode: ProductView;
 }) {
-  const products: ProductListItem[] = await getProducts(query, currentPage);
-  const viewMode = "grid" as "grid" | "list";
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("en-US", {
@@ -25,9 +24,6 @@ export default async function ListProductsComponent({
     if (!discount) return price;
     return price * (1 - discount / 100);
   };
-
-  const productHref = (product: ProductListItem) =>
-    `/products/${product.name.replace(/ /g, "-")}.${product.id}`;
 
   if (products.length === 0) {
     return (
@@ -55,7 +51,7 @@ export default async function ListProductsComponent({
             className="group shop-card-interactive flex flex-col overflow-hidden"
           >
             <div className="relative aspect-[4/5] overflow-hidden bg-shop-surface-muted">
-              <Link href={productHref(product)} className="block h-full">
+              <Link href={productPath(product)} className="block h-full">
                 <Image
                   src={product.image}
                   alt={product.name}
@@ -79,7 +75,7 @@ export default async function ListProductsComponent({
             </div>
 
             <div className="flex flex-1 flex-col p-4">
-              <Link href={productHref(product)} className="block">
+              <Link href={productPath(product)} className="block">
                 <h3 className="text-sm font-medium leading-snug text-shop-text transition-colors group-hover:text-shop-secondary">
                   {product.name}
                 </h3>
@@ -141,7 +137,7 @@ export default async function ListProductsComponent({
         >
           <div className="flex flex-col sm:flex-row">
             <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-shop-surface-muted sm:w-48 md:w-56">
-              <Link href={productHref(product)} className="relative block h-full">
+              <Link href={productPath(product)} className="relative block h-full">
                 <Image
                   src={product.image}
                   alt={product.name}
@@ -156,7 +152,7 @@ export default async function ListProductsComponent({
             </div>
             <div className="flex flex-1 flex-col justify-between p-5 md:p-6">
               <div>
-                <Link href={productHref(product)}>
+                <Link href={productPath(product)}>
                   <h3 className="font-display text-lg font-medium text-shop-text transition-colors hover:text-shop-secondary">
                     {product.name}
                   </h3>

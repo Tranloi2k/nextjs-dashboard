@@ -3,10 +3,17 @@ import LoginForm from "@/app/ui/login-form";
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/app/lib/seo";
 
-export const metadata: Metadata = {
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-no-store";
+
+export const metadata: Metadata = buildPageMetadata({
   title: "Sign in",
-};
+  description: "Sign in to your NOVA account to checkout and manage orders.",
+  pathname: "/login",
+  noIndex: true,
+});
 
 export default function LoginPage() {
   return (

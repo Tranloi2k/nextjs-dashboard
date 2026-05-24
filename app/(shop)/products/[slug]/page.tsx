@@ -1,4 +1,8 @@
+import { getCatalogAuthenticated } from "@/app/lib/catalog-auth";
 import { getProductById } from "@/app/lib/services/products";
+import { buildPageMetadata, productPath } from "@/app/lib/seo";
+import { productDetailJsonLd } from "@/app/lib/seo-structured-data";
+import JsonLd from "@/app/ui/seo/json-ld";
 import { StarIcon } from "@heroicons/react/24/solid";
 import { StarIcon as StarOutlineIcon } from "@heroicons/react/24/outline";
 import { HeartIcon } from "@heroicons/react/24/outline";
@@ -9,6 +13,8 @@ import type { Metadata } from "next";
 import type { ProductReview } from "@/app/lib/definitions";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
+export const dynamic = "force-dynamic";
+export const fetchCache = "default-no-store";
 
 export async function generateMetadata({
   params,
@@ -18,12 +24,19 @@ export async function generateMetadata({
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
   const id = slug.split(".").pop() || "";
-  const data = await getProductById(id);
+  const data = await getProductById(id, { authenticated: false });
+  const description =
+    typeof data.description === "string" && data.description.length > 0
+      ? data.description.slice(0, 160)
+      : `Buy ${data.name} at NOVA — premium tech with secure checkout.`;
+  const image = data.images?.split(",")[0] ?? data.image;
 
-  return {
-    title: `${data.name}`,
-    description: `${data.name} - ${data.description}`,
-  };
+  return buildPageMetadata({
+    title: data.name,
+    description,
+    pathname: productPath({ id: data.id, name: data.name }),
+    image,
+  });
 }
 
 export default async function ProductPage(props: {
@@ -31,7 +44,8 @@ export default async function ProductPage(props: {
 }) {
   const { slug } = await props.params;
   const id = slug.split(".").pop() || "";
-  const data = await getProductById(id);
+  const authenticated = await getCatalogAuthenticated();
+  const data = await getProductById(id, { authenticated });
   const { reviews } = data;
   const isFavorite = false;
 
@@ -47,6 +61,7 @@ export default async function ProductPage(props: {
 
   return (
     <div className="shop-content-wrap py-8 md:py-12">
+      <JsonLd data={productDetailJsonLd(data)} />
       <nav className="mb-8">
         <Link
           href="/products"

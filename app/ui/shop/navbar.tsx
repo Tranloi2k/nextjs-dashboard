@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   ShoppingBagIcon,
   UserIcon,
@@ -13,29 +13,29 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import type { ApiUserInfo } from "@/app/lib/definitions";
+import { CART_UPDATED_EVENT } from "@/app/lib/cart-events";
 import { getCart } from "@/app/lib/services/cart";
 import { getUser } from "@/app/lib/services/user";
 import ShopLogo from "@/app/ui/shop/logo";
+import {
+  categoryNavHref,
+  isCategoryActive,
+} from "@/app/lib/product-filters";
 import clsx from "clsx";
 import Image from "next/image";
-
-function getStoredCartCount(): number {
-  if (typeof window === "undefined") return 0;
-  const stored = localStorage.getItem("cartItemsCount");
-  return stored ? parseInt(stored, 10) : 0;
-}
-
 const navLinks = [
-  { name: "Shop", href: "/products" },
-  { name: "Smartphones", href: "/products" },
-  { name: "Tablets", href: "/products" },
-  { name: "Wearables", href: "/products" },
-];
+  { name: "Shop", category: "all" },
+  { name: "Smartphones", category: "smartphones" },
+  { name: "Tablets", category: "tablets" },
+  { name: "Wearables", category: "wearables" },
+] as const;
 
 export default function ShopNavbar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const activeCategory = searchParams.get("category") || "";
   const { data: session } = useSession();
-  const [cartItemsCount, setCartItemsCount] = useState(getStoredCartCount);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -48,6 +48,11 @@ export default function ShopNavbar() {
   }, []);
 
   useEffect(() => {
+    const stored = localStorage.getItem("cartItemsCount");
+    if (stored) {
+      setCartItemsCount(parseInt(stored, 10));
+    }
+
     const fetchData = async () => {
       try {
         const [cartResponse, userResponse] = await Promise.all([
@@ -64,6 +69,16 @@ export default function ShopNavbar() {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    const onCartUpdated = (event: Event) => {
+      const detail = (event as CustomEvent<{ count: number }>).detail;
+      setCartItemsCount(detail.count);
+    };
+
+    window.addEventListener(CART_UPDATED_EVENT, onCartUpdated);
+    return () => window.removeEventListener(CART_UPDATED_EVENT, onCartUpdated);
   }, []);
 
   useEffect(() => {
@@ -124,20 +139,27 @@ export default function ShopNavbar() {
           <div className="flex items-center gap-8">
             <ShopLogo />
             <nav className="hidden items-center gap-6 lg:flex">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={clsx(
-                    "text-sm font-medium transition-colors duration-shop ease-shop",
-                    pathname.startsWith(link.href) && link.href !== "/"
-                      ? "text-shop-text"
-                      : "text-shop-secondary hover:text-shop-text",
-                  )}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const href = categoryNavHref(link.category);
+                const isActive =
+                  pathname.startsWith("/products") &&
+                  isCategoryActive(activeCategory, link.category);
+
+                return (
+                  <Link
+                    key={link.name}
+                    href={href}
+                    className={clsx(
+                      "text-sm font-medium transition-colors duration-shop ease-shop",
+                      isActive
+                        ? "text-shop-text"
+                        : "text-shop-secondary hover:text-shop-text",
+                    )}
+                  >
+                    {link.name}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
@@ -150,7 +172,8 @@ export default function ShopNavbar() {
               <MagnifyingGlassIcon className="h-5 w-5" strokeWidth={1.5} />
             </Link>
 
-            <button
+            <Link
+              href="/cart"
               className="relative rounded-shop p-2.5 text-shop-secondary transition-colors hover:bg-shop-surface-muted hover:text-shop-text"
               aria-label={`Cart, ${cartItemsCount} items`}
             >
@@ -160,7 +183,7 @@ export default function ShopNavbar() {
                   {cartItemsCount > 99 ? "99+" : cartItemsCount}
                 </span>
               )}
-            </button>
+            </Link>
 
             <div className="relative user-menu-container">
               <button
@@ -235,16 +258,28 @@ export default function ShopNavbar() {
 
         {mobileOpen && (
           <nav className="border-t border-shop-border-subtle py-4 lg:hidden">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileOpen(false)}
-                className="block py-2.5 text-sm font-medium text-shop-secondary transition-colors hover:text-shop-text"
-              >
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const href = categoryNavHref(link.category);
+              const isActive =
+                pathname.startsWith("/products") &&
+                isCategoryActive(activeCategory, link.category);
+
+              return (
+                <Link
+                  key={link.name}
+                  href={href}
+                  onClick={() => setMobileOpen(false)}
+                  className={clsx(
+                    "block py-2.5 text-sm font-medium transition-colors",
+                    isActive
+                      ? "text-shop-text"
+                      : "text-shop-secondary hover:text-shop-text",
+                  )}
+                >
+                  {link.name}
+                </Link>
+              );
+            })}
           </nav>
         )}
       </div>

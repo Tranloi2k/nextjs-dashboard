@@ -1,5 +1,6 @@
 "use server";
 import { authFetch } from "@/app/lib/api-client";
+import { CACHE_TAGS } from "@/app/lib/cache-tags";
 import { cookies } from "next/headers";
 
 export const getUser = async () => {
@@ -17,6 +18,10 @@ export const getUser = async () => {
 
     const response = await authFetch(`${apiUrl}/user/${id}`, {
       method: "GET",
+      cache: "no-store",
+      next: {
+        tags: [CACHE_TAGS.user, CACHE_TAGS.userId(id)],
+      },
     });
 
     if (!response.ok) {

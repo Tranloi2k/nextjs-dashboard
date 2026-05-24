@@ -6,16 +6,24 @@ import {
 } from "@/app/ui/shop/storefront-hero";
 import ShopShell from "@/app/ui/shop/shop-shell";
 import type { Metadata } from "next";
+import { buildPageMetadata } from "@/app/lib/seo";
+import { websiteJsonLd } from "@/app/lib/seo-structured-data";
+import JsonLd from "@/app/ui/seo/json-ld";
 
-export const metadata: Metadata = {
+/** Public landing — FeaturedProducts ISR (see app/lib/segment-config.ts) */
+export const revalidate = 60;
+
+export const metadata: Metadata = buildPageMetadata({
   title: "Home",
   description:
-    "Premium ecommerce — smartphones, tablets, wearables. Secure checkout and fast delivery.",
-};
+    "Shop premium smartphones, tablets, and wearables. Secure checkout and fast delivery.",
+  pathname: "/",
+});
 
 export default function HomePage() {
   return (
     <ShopShell>
+      <JsonLd data={websiteJsonLd()} />
       <StorefrontHero />
       <CategoryTiles />
       <FeaturedProducts />
