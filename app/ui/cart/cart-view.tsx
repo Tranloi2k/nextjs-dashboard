@@ -17,6 +17,7 @@ import clsx from "clsx";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
+import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-US", {
@@ -43,6 +44,7 @@ export default function CartView({
   const [error, setError] = useState<string | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { requireAuth } = useRequireAuth();
 
   useEffect(() => {
     syncCartBadge(initialSummary.cart?.quantity ?? 0);
@@ -99,18 +101,36 @@ export default function CartView({
 
   const handleCheckout = async () => {
     if (isEmpty) return;
+    if (!requireAuth()) return;
+
     setIsCheckingOut(true);
     setError(null);
 
     try {
-      const response = await fetch("/api/checkout/cart", { method: "POST" });
-      if (!response.ok) {
-        throw new Error("Checkout failed");
+      const response = await fetch("/api/checkout/cart", {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (response.status === 401) {
+        setIsCheckingOut(false);
+        requireAuth();
+        return;
       }
-      const { url } = await response.json();
-      window.location.href = url;
-    } catch {
-      setError("Could not start checkout. Please try again.");
+
+      const data = (await response.json()) as { url?: string; error?: string };
+
+      if (!response.ok || !data.url) {
+        throw new Error(data.error ?? "Checkout failed");
+      }
+
+      window.location.href = data.url;
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Could not start checkout. Please try again.",
+      );
       setIsCheckingOut(false);
     }
   };

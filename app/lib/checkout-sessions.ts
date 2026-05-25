@@ -1,11 +1,26 @@
 import Stripe from "stripe";
 import { NextRequest, NextResponse } from "next/server";
+import { absoluteImageUrl, absoluteUrl } from "@/app/lib/seo";
 import {
   revalidateAfterCartChange,
   revalidateProductsCatalog,
 } from "@/app/lib/revalidate-shop";
 
 const CURRENCY = "usd";
+
+function checkoutUrls() {
+  return {
+    success: absoluteUrl(
+      "/checkout/success?session_id={CHECKOUT_SESSION_ID}",
+    ),
+    cancel: absoluteUrl("/checkout/cancel"),
+  };
+}
+
+function resolveStripeImages(image?: string): string[] {
+  if (!image?.trim()) return [];
+  return [absoluteImageUrl(image.trim())];
+}
 
 let stripeClient: Stripe | null = null;
 
@@ -71,6 +86,7 @@ export async function createProductCheckoutSession(
   metadata?: Record<string, string>
 ): Promise<Stripe.Checkout.Session> {
   try {
+    const { success, cancel } = checkoutUrls();
     const params: Stripe.Checkout.SessionCreateParams = {
       payment_method_types: ["card"],
       line_items: [
@@ -80,7 +96,7 @@ export async function createProductCheckoutSession(
             product_data: {
               name: product.name,
               description: product.description || `Product: ${product.name}`,
-              images: product.image ? [product.image] : [],
+              images: resolveStripeImages(product.image),
             },
             unit_amount: formatAmountForStripe(product.price, CURRENCY),
           },
@@ -88,8 +104,8 @@ export async function createProductCheckoutSession(
         },
       ],
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`,
+      success_url: success,
+      cancel_url: cancel,
       customer_email: customerEmail,
       metadata: {
         product_id: product.id,
@@ -117,13 +133,14 @@ export async function createCartCheckoutSession(
   metadata?: Record<string, string>
 ): Promise<Stripe.Checkout.Session> {
   try {
+    const { success, cancel } = checkoutUrls();
     const lineItems = products.map(({ product, quantity }) => ({
       price_data: {
         currency: CURRENCY,
         product_data: {
           name: product.name,
           description: product.description || `Product: ${product.name}`,
-          images: product.image ? [product.image] : [],
+          images: resolveStripeImages(product.image),
         },
         unit_amount: formatAmountForStripe(product.price, CURRENCY),
       },
@@ -134,8 +151,8 @@ export async function createCartCheckoutSession(
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/checkout/cancel`,
+      success_url: success,
+      cancel_url: cancel,
       customer_email: customerEmail,
       metadata: {
         order_type: "cart",
@@ -146,9 +163,6 @@ export async function createCartCheckoutSession(
         allowed_countries: ["US", "CA", "GB", "AU"],
       },
       billing_address_collection: "required",
-      automatic_tax: {
-        enabled: true,
-      },
     };
 
     const checkoutSession = await getStripe().checkout.sessions.create(params);
