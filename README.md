@@ -2,13 +2,13 @@
 
 A modern, full-stack e-commerce dashboard built with Next.js 15 frontend and NestJS backend, featuring product management, user authentication, and integrated Stripe payments.
 
-Demo: https://nova-online-shopping.vercel.app/
-
 ![Next.js](https://img.shields.io/badge/Next.js-15.0-black?style=flat-square&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=flat-square&logo=typescript)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0-38B2AC?style=flat-square&logo=tailwind-css)
 ![NestJS](https://img.shields.io/badge/NestJS-Backend-E0234E?style=flat-square&logo=nestjs)
 ![Stripe](https://img.shields.io/badge/Stripe-Payment-635BFF?style=flat-square&logo=stripe)
+
+### Demo: https://nova-online-shopping.vercel.app/
 
 ## ✨ Features
 
