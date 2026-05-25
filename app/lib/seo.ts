@@ -154,6 +154,11 @@ export function buildPageMetadata(options: {
   };
 }
 
+/** Google Search Console — HTML tag verification (root layout) */
+const googleSiteVerification =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ??
+  "bGAC5K-jyxXnQKEZfJ7IXjLUyYhjUENmHJXRoTdOpw0";
+
 export const rootMetadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: {
@@ -162,6 +167,9 @@ export const rootMetadata: Metadata = {
   },
   description: DEFAULT_DESCRIPTION,
   applicationName: SITE_NAME,
+  verification: {
+    google: googleSiteVerification,
+  },
   openGraph: {
     type: "website",
     locale: "en_US",

@@ -167,11 +167,7 @@ export default function ProductForm({
               </>
             )}
           </ShopButton>
-          <BuyNowButton
-            product={product}
-            quantity={quantity}
-            customerEmail={"customerEmail@example.com"}
-          />
+          <BuyNowButton product={product} quantity={quantity} />
         </div>
       </div>
     </form>

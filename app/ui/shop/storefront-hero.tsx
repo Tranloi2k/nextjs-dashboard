@@ -300,7 +300,7 @@ export async function FeaturedProducts() {
         </div>
 
         <div className="mt-8 grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4 lg:gap-6">
-          {featured.map((product) => (
+          {featured.map((product, index) => (
             <Link
               key={product.id}
               href={`/products/${product.name.replace(/ /g, "-")}.${product.id}`}
@@ -311,6 +311,7 @@ export async function FeaturedProducts() {
                   src={product.image}
                   alt={product.name}
                   fill
+                  priority={index === 0}
                   className="object-contain p-6 transition-transform duration-500 ease-shop group-hover:scale-[1.03]"
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 20vw"
                 />

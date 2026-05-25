@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import { getCheckoutAuth } from "@/app/lib/checkout-auth";
 import { createCartCheckoutSession } from "@/app/lib/checkout-sessions";
 import { getCartSummary } from "@/app/lib/services/cart";
 
@@ -7,8 +7,8 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function POST() {
-  const session = await auth();
-  if (!session?.user) {
+  const checkoutAuth = await getCheckoutAuth();
+  if (!checkoutAuth.authorized) {
     return NextResponse.json({ error: "Sign in required" }, { status: 401 });
   }
 
@@ -31,11 +31,21 @@ export async function POST() {
       quantity: item.quantity,
     }));
 
-    const session = await createCartCheckoutSession(products);
+    const stripeSession = await createCartCheckoutSession(
+      products,
+      checkoutAuth.customerEmail,
+    );
+
+    if (!stripeSession.url) {
+      return NextResponse.json(
+        { error: "Checkout session has no redirect URL" },
+        { status: 500 },
+      );
+    }
 
     return NextResponse.json({
-      sessionId: session.id,
-      url: session.url,
+      sessionId: stripeSession.id,
+      url: stripeSession.url,
     });
   } catch (error) {
     console.error("Error creating cart checkout session:", error);

@@ -1,5 +1,8 @@
 import { getCatalogAuthenticated } from "@/app/lib/catalog-auth";
-import { getProductById } from "@/app/lib/services/products";
+import {
+  getAllProductSlugParams,
+  getProductById,
+} from "@/app/lib/services/products";
 import { buildPageMetadata, productPath } from "@/app/lib/seo";
 import { productDetailJsonLd } from "@/app/lib/seo-structured-data";
 import JsonLd from "@/app/ui/seo/json-ld";
@@ -13,8 +16,16 @@ import type { Metadata } from "next";
 import type { ProductReview } from "@/app/lib/definitions";
 import Link from "next/link";
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
-export const dynamic = "force-dynamic";
-export const fetchCache = "default-no-store";
+
+/** ISR — prebuild known slugs via generateStaticParams; align with public catalog fetch */
+export const revalidate = 60;
+
+/** Slugs not returned at build time still work (on-demand ISR) */
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  return getAllProductSlugParams();
+}
 
 export async function generateMetadata({
   params,

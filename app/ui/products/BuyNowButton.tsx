@@ -1,27 +1,27 @@
 "use client";
 
 import { useRequireAuth } from "@/app/ui/auth/use-require-auth";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 
 interface BuyNowButtonProps {
   product: {
-    id: string;
+    id: string | number;
     name: string;
     price: number;
   };
   quantity?: number;
-  customerEmail?: string;
 }
 
 export default function BuyNowButton({
   product,
   quantity = 1,
-  customerEmail,
 }: BuyNowButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { requireAuth, isAuthLoading } = useRequireAuth();
+  const { data: session } = useSession();
 
   const handleBuyNow = async () => {
     if (!requireAuth()) {
@@ -36,12 +36,13 @@ export default function BuyNowButton({
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
-          productId: product.id,
+          productId: String(product.id),
           productName: product.name,
           price: product.price,
           quantity,
-          customerEmail,
+          customerEmail: session?.user?.email ?? undefined,
         }),
       });
 
@@ -50,15 +51,20 @@ export default function BuyNowButton({
         return;
       }
 
-      if (!response.ok) {
-        throw new Error("Failed to create checkout session");
+      const data = (await response.json()) as { url?: string; error?: string };
+
+      if (!response.ok || !data.url) {
+        throw new Error(data.error ?? "Failed to create checkout session");
       }
 
-      const { url } = await response.json();
-      window.location.href = url;
+      window.location.href = data.url;
     } catch (error) {
       console.error("Error initiating checkout:", error);
-      alert("Failed to start checkout. Please try again.");
+      alert(
+        error instanceof Error
+          ? error.message
+          : "Failed to start checkout. Please try again.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -68,6 +74,7 @@ export default function BuyNowButton({
 
   return (
     <button
+      type="button"
       onClick={handleBuyNow}
       disabled={isLoading || isAuthLoading}
       className={clsx(
